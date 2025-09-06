@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>聊天測試</title>
+</head>
+<body>
+    <div id="messages"></div>
+    <input type="text" id="input" placeholder="說些什麼...">
+    <button id="send">發送</button>
+
+    <script>
+        const messages = document.getElementById('messages');
+        const input = document.getElementById('input');
+        const send = document.getElementById('send');
+
+        function addMessage(text, sender) {
+            const div = document.createElement('div');
+            div.textContent = `${sender}: ${text}`;
+            messages.appendChild(div);
+        }
+
+        function sendMessage() {
+            const text = input.value.trim();
+            if (text) {
+                addMessage(text, '用戶');
+                input.value = '';
+                
+                // 簡單回應
+                setTimeout(() => {
+                    addMessage(`我聽到您說："${text}"，很有趣呢！`, '小安');
+                }, 1000);
+            }
+        }
+
+        send.addEventListener('click', sendMessage);
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>

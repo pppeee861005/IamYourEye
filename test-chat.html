@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>聊天模組測試</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        button { margin: 5px; padding: 10px 15px; cursor: pointer; }
+        #chat-output { background: #f8f9fa; padding: 10px; border-radius: 5px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>聊天模組測試</h1>
+
+    <div id="test-results"></div>
+
+    <button onclick="testChatbotInitialization()">測試聊天機器人初始化</button>
+    <button onclick="testEnvLoader()">測試環境變數載入</button>
+    <button onclick="testBasicChat()">測試基本聊天功能</button>
+    <button onclick="testStoryIntegration()">測試故事整合</button>
+
+    <div id="chat-output">
+        <h3>聊天輸出:</h3>
+        <div id="messages"></div>
+    </div>
+
+    <script src="js/env-loader.js"></script>
+    <script src="js/chatbot.js"></script>
+
+    <script>
+        let testResults = document.getElementById('test-results');
+        let messagesDiv = document.getElementById('messages');
+
+        function addTestResult(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.textContent = message;
+            testResults.appendChild(div);
+        }
+
+        function addMessage(text, sender = 'system') {
+            const div = document.createElement('div');
+            div.innerHTML = `<strong>${sender}:</strong> ${text}`;
+            messagesDiv.appendChild(div);
+        }
+
+        async function testChatbotInitialization() {
+            try {
+                addTestResult('測試聊天機器人初始化...', 'info');
+
+                if (typeof window.chatbot === 'undefined') {
+                    throw new Error('聊天機器人實例未創建');
+                }
+
+                addTestResult('✅ 聊天機器人實例創建成功', 'success');
+                addMessage('聊天機器人初始化完成');
+
+            } catch (error) {
+                addTestResult(`❌ 初始化失敗: ${error.message}`, 'error');
+            }
+        }
+
+        async function testEnvLoader() {
+            try {
+                addTestResult('測試環境變數載入...', 'info');
+
+                if (typeof window.envLoader === 'undefined') {
+                    throw new Error('環境變數載入器未載入');
+                }
+
+                await window.envLoader.load();
+
+                const apiKey = window.envLoader.get('GEMINI_API_KEY');
+                const model = window.envLoader.get('GEMINI_MODEL');
+
+                if (!apiKey) {
+                    throw new Error('GEMINI_API_KEY 未設定');
+                }
+
+                addTestResult(`✅ 環境變數載入成功 - API Key: ${apiKey.substring(0, 10)}...`, 'success');
+                addTestResult(`✅ 模型設定: ${model}`, 'success');
+
+            } catch (error) {
+                addTestResult(`❌ 環境變數載入失敗: ${error.message}`, 'error');
+            }
+        }
+
+        async function testBasicChat() {
+            try {
+                addTestResult('測試基本聊天功能...', 'info');
+
+                if (typeof window.chatbot === 'undefined') {
+                    throw new Error('聊天機器人未初始化');
+                }
+
+                // 模擬用戶輸入
+                const testMessage = '你好，請介紹一下自己';
+
+                // 直接調用聊天機器人的方法進行測試
+                const response = await window.chatbot.getGeminiResponse(testMessage);
+
+                addTestResult('✅ 基本聊天功能正常', 'success');
+                addMessage(`用戶: ${testMessage}`);
+                addMessage(`機器人: ${response}`, 'bot');
+
+            } catch (error) {
+                addTestResult(`❌ 聊天功能測試失敗: ${error.message}`, 'error');
+            }
+        }
+
+        async function testStoryIntegration() {
+            try {
+                addTestResult('測試故事整合功能...', 'info');
+
+                if (typeof window.chatbot === 'undefined') {
+                    throw new Error('聊天機器人未初始化');
+                }
+
+                // 創建一個模擬的故事內容元素
+                const storyElement = document.createElement('div');
+                storyElement.id = 'story-content';
+                storyElement.textContent = '這是一個測試故事，用於驗證聊天機器人的故事整合功能。';
+                document.body.appendChild(storyElement);
+
+                // 測試包含故事的聊天
+                const testMessage = '請解釋這個故事的內容';
+
+                // 模擬聊天輸入
+                const input = document.createElement('input');
+                input.id = 'chat-input';
+                input.value = testMessage;
+                document.body.appendChild(input);
+
+                // 調用發送訊息方法
+                await window.chatbot.sendMessage();
+
+                addTestResult('✅ 故事整合功能測試完成', 'success');
+
+            } catch (error) {
+                addTestResult(`❌ 故事整合測試失敗: ${error.message}`, 'error');
+            }
+        }
+
+        // 頁面載入時自動運行基本測試
+        window.addEventListener('load', async function() {
+            addTestResult('開始自動測試...', 'info');
+            await testChatbotInitialization();
+            await testEnvLoader();
+        });
+    </script>
+</body>
+</html>

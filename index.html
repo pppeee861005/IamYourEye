@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>老花眼救星</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <!-- Tesseract.js for OCR -->
+    <script src="https://unpkg.com/tesseract.js@5.0.4/dist/tesseract.min.js"></script>
+    <script src="./js/env-loader.js"></script> <!-- 引入 env-loader.js -->
+    <script src="./js/config.js"></script> <!-- config.js 不再是模組 -->
+    <script type="module" src="js/main.js"></script>
+    <script type="module" src="./js/story-generator.js"></script>
+    <script type="module" src="./js/chatbot.js"></script>
+</head>
+<body>
+    <!-- 主容器 - 語義化HTML結構 -->
+    <main class="app-container" role="main">
+        
+        <!-- AI問候區域 -->
+        <header class="greeting-section">
+            <h1 class="app-title">😊 老花眼救星</h1>
+            <div class="ai-greeting" id="ai-greeting">
+                <div class="greeting-text">您好！我是小安，您的貼心助手 😊</div>
+                <div class="greeting-question">請問我該怎麼稱呼您呢？</div>
+                <div class="user-preference" id="user-preference">
+                    <button class="preference-btn" id="grandpa-btn" aria-label="選擇爺爺稱謂">爺爺</button>
+                    <button class="preference-btn" id="grandma-btn" aria-label="選擇奶奶稱謂">奶奶</button>
+                </div>
+            </div>
+        </header>
+
+
+        <!-- 核心功能入口區域 -->
+        <section class="main-interactions">
+            <div class="interactions-container">
+                <!-- 上傳照片功能 -->
+                <div class="interaction-item">
+                    <label for="photo-upload" class="primary-btn" role="button" tabindex="0" aria-label="上傳照片進行文字識別">
+                        📷 上傳照片
+                        <input type="file" id="photo-upload" class="file-input" accept="image/*" aria-describedby="upload-desc">
+                    </label>
+                    <p class="interaction-desc" id="upload-desc">上傳圖片，小安會幫您識別文字內容</p>
+                </div>
+
+                <!-- 直接對話功能 -->
+                <div class="interaction-item">
+                    <label for="text-input" class="input-label">💬 直接對話</label>
+                    <textarea 
+                        id="text-input" 
+                        class="text-input" 
+                        placeholder="輸入您想說的話，或者問問題..."
+                        rows="3"
+                        maxlength="500"
+                        aria-describedby="text-desc">
+                    </textarea>
+                    <p class="interaction-desc" id="text-desc">直接與小安對話，詢問任何問題</p>
+                    <button class="primary-btn" id="text-submit-btn" aria-label="發送文字訊息">
+                        💬 開始對話
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- OCR 結果顯示區域 -->
+        <section id="ocr-result-area" class="ocr-result-area" style="display: none;" aria-live="polite">
+            <div class="ocr-result-header">
+                <h3>📝 識別結果</h3>
+                <button id="ocr-result-close" class="close-btn" aria-label="關閉識別結果">✕</button>
+            </div>
+            <div class="ocr-result-content">
+                <div id="ocr-result-text" class="ocr-result-text"></div>
+                <div class="ocr-result-actions">
+                    <button id="copy-result-btn" class="action-btn" aria-label="複製識別結果">
+                        📋 複製
+                    </button>
+                    <button id="send-to-chat-btn" class="action-btn" aria-label="發送到對話">
+                        💬 發送到對話
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 回應區域 -->
+        <section id="response-area" class="response-area" style="display: none;" aria-live="polite">
+            <div class="response-content">
+                <div id="response-text" class="response-text"></div>
+                <div class="response-actions">
+                    <button id="read-aloud-btn" class="action-btn" aria-label="大聲朗讀回應內容">
+                        🔊 朗讀
+                    </button>
+                    <button id="continue-btn" class="action-btn" aria-label="請小安繼續說明">
+                        ➡️ 繼續
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 載入指示器 -->
+        <div id="loading-indicator" class="loading-indicator" style="display: none;" aria-live="polite">
+            <div class="loading-spinner" aria-hidden="true"></div>
+            <div class="loading-text">小安正在處理中...</div>
+        </div>
+
+        <!-- 聊天機器人界面 -->
+        <section class="chatbot-section">
+
+                <!-- 聊天訊息區域 -->
+                <div class="chat-messages" id="messages">
+                <div class="message bot-message">
+                    <div class="message-bubble">
+                        您好！我是小安，很高興見到您！有什麼可以幫助您的嗎？
+                    </div>
+                </div>
+                </div>
+
+                <!-- 聊天輸入區域 -->
+                <div class="chat-input-area">
+                    <div class="typing" id="typing" style="display: none;">小安正在思考中...</div>
+                    <div class="input-container">
+                        <input type="text" id="chat-input" placeholder="和小安說些什麼..." maxlength="200">
+                        <button id="send-btn">發送</button>
+                    </div>
+                </div>
+
+        </section>
+
+    </main>
+
+    <!-- JavaScript -->
+    <script type="module">
+        // 所有模組已自動載入 .env 配置並初始化
+    </script>
+</body>
+</html>

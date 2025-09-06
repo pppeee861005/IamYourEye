@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>故事生成器 - 老花眼救星</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="js/env-loader.js"></script>
+    <style>
+        .story-generator-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .story-input-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .story-input-section h2 {
+            color: #333;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-size: 1.8rem;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .story-prompt {
+            width: 100%;
+            min-height: 120px;
+            padding: 1rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            line-height: 1.6;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .story-prompt:focus {
+            border-color: #007bff;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+        }
+
+        .story-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .option-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .option-group select,
+        .option-group input[type="number"] {
+            padding: 0.5rem;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        .generate-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .generate-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .story-result-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .story-result-section h2 {
+            color: #333;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-size: 1.8rem;
+        }
+
+        .story-content {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
+            line-height: 1.8;
+            white-space: pre-line;
+            min-height: 200px;
+        }
+
+        .story-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .read-btn {
+            background: #28a745;
+            color: white;
+        }
+
+        .copy-btn {
+            background: #6c757d;
+            color: white;
+        }
+
+        .save-btn {
+            background: #007bff;
+            color: white;
+        }
+
+        .new-story-btn {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #007bff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .story-templates {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .templates-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .template-card {
+            padding: 1rem;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .template-card:hover {
+            border-color: #007bff;
+            background: #f8f9ff;
+            transform: translateY(-2px);
+        }
+
+        .template-card.selected {
+            border-color: #007bff;
+            background: #e7f3ff;
+        }
+
+        .template-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .template-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.25rem;
+        }
+
+        .template-desc {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .api-config {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border: 1px solid #dee2e6;
+        }
+
+        .api-config label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .api-config input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid #f5c6cb;
+            margin-bottom: 1rem;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid #c3e6cb;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .story-generator-container {
+                padding: 10px;
+            }
+
+            .story-input-section,
+            .story-result-section,
+            .story-templates {
+                padding: 1rem;
+            }
+
+            .story-options {
+                grid-template-columns: 1fr;
+            }
+
+            .story-actions {
+                flex-direction: column;
+            }
+
+            .action-btn {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="story-generator-container">
+        <header style="text-align: center; margin-bottom: 2rem;">
+            <h1 style="color: #333; font-size: 2.5rem; margin-bottom: 0.5rem;">📚 故事生成器</h1>
+            <p style="color: #666; font-size: 1.1rem;">讓 AI 為您創作精彩的故事</p>
+        </header>
+
+        <!-- API 配置 -->
+        <div class="api-config">
+            <label for="api-key">🔑 Gemini API Key:</label>
+            <input type="password" id="api-key" placeholder="輸入您的 Gemini API Key">
+            <small style="color: #666; margin-top: 0.25rem; display: block;">
+                前往 <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a> 獲取免費 API Key
+            </small>
+        </div>
+
+        <!-- 故事模板 -->
+        <section class="story-templates">
+            <h2>選擇故事類型</h2>
+            <div class="templates-grid">
+                <div class="template-card" data-template="fairy-tale">
+                    <div class="template-icon">🧚</div>
+                    <div class="template-title">童話故事</div>
+                    <div class="template-desc">溫馨的童話故事，適合兒童閱讀</div>
+                </div>
+                <div class="template-card" data-template="adventure">
+                    <div class="template-icon">🗺️</div>
+                    <div class="template-title">冒險故事</div>
+                    <div class="template-desc">充滿刺激的冒險經歷</div>
+                </div>
+                <div class="template-card" data-template="life">
+                    <div class="template-icon">🏠</div>
+                    <div class="template-title">生活故事</div>
+                    <div class="template-desc">貼近生活的溫馨小品</div>
+                </div>
+                <div class="template-card" data-template="mystery">
+                    <div class="template-icon">🔍</div>
+                    <div class="template-title">懸疑故事</div>
+                    <div class="template-desc">引人入勝的懸疑推理</div>
+                </div>
+                <div class="template-card" data-template="custom">
+                    <div class="template-icon">✨</div>
+                    <div class="template-title">自訂故事</div>
+                    <div class="template-desc">根據您的想法創作</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 故事輸入 -->
+        <section class="story-input-section">
+            <h2>故事設定</h2>
+
+            <div class="input-group">
+                <label for="story-prompt">故事主題或關鍵字：</label>
+                <textarea
+                    id="story-prompt"
+                    class="story-prompt"
+                    placeholder="請輸入故事的主題、關鍵字或簡單描述。例如：&#10;• 一隻小兔子的冒險之旅&#10;• 關於友誼的故事&#10;• 魔法森林的奇幻冒險&#10;• 溫馨的家庭故事"
+                ></textarea>
+            </div>
+
+            <div class="story-options">
+                <div class="option-group">
+                    <label for="story-length">故事長度：</label>
+                    <select id="story-length">
+                        <option value="short">短篇 (300-500字)</option>
+                        <option value="medium" selected>中篇 (500-800字)</option>
+                        <option value="long">長篇 (800-1200字)</option>
+                    </select>
+                </div>
+
+                <div class="option-group">
+                    <label for="target-audience">目標讀者：</label>
+                    <select id="target-audience">
+                        <option value="children">兒童</option>
+                        <option value="teenagers">青少年</option>
+                        <option value="adults" selected>成人</option>
+                        <option value="elderly">長者</option>
+                    </select>
+                </div>
+
+                <div class="option-group">
+                    <label for="story-tone">故事風格：</label>
+                    <select id="story-tone">
+                        <option value="warm" selected>溫馨</option>
+                        <option value="exciting">刺激</option>
+                        <option value="mysterious">神秘</option>
+                        <option value="humorous">幽默</option>
+                        <option value="inspirational">勵志</option>
+                    </select>
+                </div>
+            </div>
+
+            <button id="generate-story-btn" class="generate-btn">
+                🚀 生成故事
+            </button>
+        </section>
+
+        <!-- 故事結果 -->
+        <section class="story-result-section" id="story-result" style="display: none;">
+            <h2>生成的故事</h2>
+            <div id="story-content" class="story-content">
+                故事將在這裡顯示...
+            </div>
+
+            <div class="story-actions">
+                <button id="read-story-btn" class="action-btn read-btn">
+                    🔊 朗讀故事
+                </button>
+                <button id="copy-story-btn" class="action-btn copy-btn">
+                    📋 複製故事
+                </button>
+                <button id="save-story-btn" class="action-btn save-btn">
+                    💾 保存故事
+                </button>
+                <button id="new-story-btn" class="action-btn new-story-btn">
+                    ✨ 新故事
+                </button>
+            </div>
+        </section>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        class StoryGenerator {
+            constructor() {
+                this.apiKey = '';
+                this.currentStory = '';
+                this.selectedTemplate = 'custom';
+                this.init();
+            }
+
+            init() {
+                this.bindEvents();
+                this.loadApiKey();
+            }
+
+            bindEvents() {
+                // 模板選擇
+                document.querySelectorAll('.template-card').forEach(card => {
+                    card.addEventListener('click', () => this.selectTemplate(card));
+                });
+
+                // 生成故事按鈕
+                document.getElementById('generate-story-btn').addEventListener('click', () => this.generateStory());
+
+                // 故事操作按鈕
+                document.getElementById('read-story-btn').addEventListener('click', () => this.readStory());
+                document.getElementById('copy-story-btn').addEventListener('click', () => this.copyStory());
+                document.getElementById('save-story-btn').addEventListener('click', () => this.saveStory());
+                document.getElementById('new-story-btn').addEventListener('click', () => this.newStory());
+
+                // API Key 輸入
+                document.getElementById('api-key').addEventListener('input', (e) => {
+                    this.apiKey = e.target.value.trim();
+                    localStorage.setItem('geminiApiKey', this.apiKey);
+                    // localStorage.setItem('geminiApiKey', this.apiKey);
+                });
+            }
+
+            async loadApiKey() {
+                try {
+                    // 先嘗試從.env文件載入
+                    await window.envLoader.load();
+                    const envApiKey = window.envLoader.get('GEMINI_API_KEY');
+                    const envBaseUrl = window.envLoader.get('GEMINI_BASE_URL');
+                    const envModel = window.envLoader.get('GEMINI_MODEL');
+
+                    if (envApiKey) {
+                        this.apiKey = envApiKey;
+                        this.baseUrl = envBaseUrl || 'https://generativelanguage.googleapis.com/v1beta/models';
+                        this.model = envModel || 'gemini-2.0-flash-exp';
+
+                        document.getElementById('api-key').value = envApiKey;
+                        document.getElementById('api-key').disabled = true;
+                        document.querySelector('.api-config small').textContent = '✅ API Key 已從 .env 文件自動載入';
+                        console.log('✅ API Key 已從 .env 文件載入');
+                        return;
+                    }
+                } catch (error) {
+                    console.warn('無法載入 .env 文件:', error);
+                }
+
+                // 如果.env載入失敗，使用本地存儲的API Key
+                const savedKey = localStorage.getItem('geminiApiKey');
+                if (savedKey) {
+                    this.apiKey = savedKey;
+                    this.baseUrl = 'https://generativelanguage.googleapis.com/v1beta/models';
+                    this.model = 'gemini-2.0-flash-exp';
+                    document.getElementById('api-key').value = savedKey;
+                } else {
+                    this.baseUrl = 'https://generativelanguage.googleapis.com/v1beta/models';
+                    this.model = 'gemini-2.0-flash-exp';
+                }
+            }
+
+            selectTemplate(card) {
+                // 移除之前的選擇
+                document.querySelectorAll('.template-card').forEach(c => c.classList.remove('selected'));
+                // 添加新選擇
+                card.classList.add('selected');
+                this.selectedTemplate = card.dataset.template;
+
+                // 根據模板設置預設提示
+                const prompts = {
+                    'fairy-tale': '從前從前，在一個美麗的王國裡，住著一位善良的小公主...',
+                    'adventure': '在遼闊的海洋上，一艘小船載著勇敢的船長和他的夥伴們...',
+                    'life': '在一個寧靜的小鎮上，住著一位普通的家庭主婦和她的家人...',
+                    'mystery': '深夜的古堡裡，傳來了奇怪的聲音，讓人毛骨悚然...',
+                    'custom': ''
+                };
+
+                const promptTextarea = document.getElementById('story-prompt');
+                if (prompts[this.selectedTemplate]) {
+                    promptTextarea.value = prompts[this.selectedTemplate];
+                }
+            }
+
+            async generateStory() {
+                const prompt = document.getElementById('story-prompt').value.trim();
+                const length = document.getElementById('story-length').value;
+                const audience = document.getElementById('target-audience').value;
+                const tone = document.getElementById('story-tone').value;
+
+                if (!this.apiKey) {
+                    this.showError('請先輸入 Gemini API Key');
+                    document.getElementById('api-key').focus();
+                    return;
+                }
+
+                if (!prompt) {
+                    this.showError('請輸入故事主題或關鍵字');
+                    document.getElementById('story-prompt').focus();
+                    return;
+                }
+
+                // 顯示載入狀態
+                this.setLoading(true);
+
+                try {
+                    const storyPrompt = this.buildStoryPrompt(prompt, length, audience, tone);
+                    const story = await this.callGeminiAPI(storyPrompt);
+
+                    this.currentStory = story;
+                    this.displayStory(story);
+                    this.showSuccess('故事生成成功！');
+
+                } catch (error) {
+                    console.error('生成故事失敗:', error);
+                    this.showError(`生成故事失敗: ${error.message}`);
+                } finally {
+                    this.setLoading(false);
+                }
+            }
+
+            buildStoryPrompt(prompt, length, audience, tone) {
+                const lengthMap = {
+                    short: '300-500字',
+                    medium: '500-800字',
+                    long: '800-1200字'
+                };
+
+                const audienceMap = {
+                    children: '兒童，語言要簡單易懂，充滿想像力',
+                    teenagers: '青少年，故事要有深度和啟發性',
+                    adults: '成人，故事要成熟有深度',
+                    elderly: '長者，溫馨感人，貼近生活'
+                };
+
+                const toneMap = {
+                    warm: '溫馨感人',
+                    exciting: '刺激緊張',
+                    mysterious: '神秘懸疑',
+                    humorous: '幽默風趣',
+                    inspirational: '勵志向上'
+                };
+
+                return `請根據以下要求創作一個完整的故事：
+
+主題：${prompt}
+長度：${lengthMap[length]}
+讀者：${audienceMap[audience]}
+風格：${toneMap[tone]}
+
+要求：
+1. 使用繁體中文書寫
+2. 故事結構完整（開頭、發展、高潮、結尾）
+3. 語言生動有趣，適合目標讀者
+4. 包含適當的情感表達
+5. 結尾要有啟發性或溫暖的感覺
+
+請直接提供完整的故事內容，不要包含其他說明。`;
+            }
+
+            async callGeminiAPI(prompt) {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${this.apiKey}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{
+                                text: prompt
+                            }]
+                        }],
+                        generationConfig: {
+                            temperature: 0.7,
+                            topK: 40,
+                            topP: 0.95,
+                            maxOutputTokens: 2048,
+                        }
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API 請求失敗: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0]) {
+                    return data.candidates[0].content.parts[0].text;
+                } else {
+                    throw new Error('API 回應格式異常');
+                }
+            }
+
+            displayStory(story) {
+                const resultSection = document.getElementById('story-result');
+                const storyContent = document.getElementById('story-content');
+
+                storyContent.textContent = story;
+                resultSection.style.display = 'block';
+
+                // 滾動到結果區域
+                resultSection.scrollIntoView({ behavior: 'smooth' });
+            }
+
+            readStory() {
+                if (!this.currentStory) {
+                    this.showError('沒有故事可以朗讀');
+                    return;
+                }
+
+                if ('speechSynthesis' in window) {
+                    window.speechSynthesis.cancel();
+                    const utterance = new SpeechSynthesisUtterance(this.currentStory);
+                    utterance.lang = 'zh-TW';
+                    utterance.rate = 0.8;
+                    utterance.pitch = 1.0;
+                    utterance.volume = 1.0;
+                    window.speechSynthesis.speak(utterance);
+                    this.showSuccess('開始朗讀故事...');
+                } else {
+                    this.showError('您的瀏覽器不支援語音朗讀功能');
+                }
+            }
+
+            async copyStory() {
+                if (!this.currentStory) {
+                    this.showError('沒有故事可以複製');
+                    return;
+                }
+
+                try {
+                    await navigator.clipboard.writeText(this.currentStory);
+                    this.showSuccess('故事已複製到剪貼板');
+                } catch (error) {
+                    console.error('複製失敗:', error);
+                    this.showError('複製失敗，請手動選取並複製');
+                }
+            }
+
+            saveStory() {
+                if (!this.currentStory) {
+                    this.showError('沒有故事可以保存');
+                    return;
+                }
+
+                const blob = new Blob([this.currentStory], { type: 'text/plain;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `故事_${new Date().toLocaleDateString('zh-TW').replace(/\//g, '-')}.txt`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                this.showSuccess('故事已保存為檔案');
+            }
+
+            newStory() {
+                this.currentStory = '';
+                document.getElementById('story-result').style.display = 'none';
+                document.getElementById('story-prompt').focus();
+                this.showSuccess('準備創作新故事！');
+            }
+
+            setLoading(loading) {
+                const btn = document.getElementById('generate-story-btn');
+                const originalText = '🚀 生成故事';
+
+                if (loading) {
+                    btn.disabled = true;
+                    btn.innerHTML = '<div class="loading-spinner"></div> 生成中...';
+                } else {
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                }
+            }
+
+            showError(message) {
+                this.showMessage(message, 'error');
+            }
+
+            showSuccess(message) {
+                this.showMessage(message, 'success');
+            }
+
+            showMessage(message, type) {
+                // 移除現有的訊息
+                const existingMessages = document.querySelectorAll('.error-message, .success-message');
+                existingMessages.forEach(msg => msg.remove());
+
+                const messageDiv = document.createElement('div');
+                messageDiv.className = type === 'error' ? 'error-message' : 'success-message';
+                messageDiv.textContent = message;
+
+                const container = document.querySelector('.story-generator-container');
+                container.insertBefore(messageDiv, container.firstChild);
+
+                // 3秒後自動移除
+                setTimeout(() => {
+                    if (messageDiv.parentNode) {
+                        messageDiv.remove();
+                    }
+                }, 3000);
+            }
+        }
+
+        // 初始化故事生成器
+        document.addEventListener('DOMContentLoaded', () => {
+            new StoryGenerator();
+        });
+    </script>
+</body>
+</html>

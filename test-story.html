@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>故事生成器測試</title>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.0.2/dist/tesseract.min.js"></script>
+    <script type="module" src="https://esm.run/@google/generative-ai@0.21.0"></script>
+    <script src="js/env-loader.js"></script>
+    <script src="js/ocr-processor.js"></script>
+    <script src="js/story-generator.js"></script>
+</head>
+<body>
+    <h1>故事生成器測試</h1>
+    <div>
+        <button onclick="testStoryGenerator()">測試故事生成器</button>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        async function testStoryGenerator() {
+            const result = document.getElementById('result');
+            result.textContent = '測試中...';
+
+            try {
+                // 檢查模組是否載入
+                console.log('envLoader:', window.envLoader);
+                console.log('storyGenerator:', window.storyGenerator);
+                console.log('ocrProcessor:', window.ocrProcessor);
+
+                if (!window.storyGenerator) {
+                    result.textContent = '❌ 故事生成器未載入';
+                    return;
+                }
+
+                // 測試基本功能
+                window.storyGenerator.setOcrText('這是一個測試文字');
+                await window.storyGenerator.generateStory();
+
+                result.textContent = '✅ 故事生成器正常工作';
+
+            } catch (error) {
+                console.error('測試錯誤:', error);
+                result.textContent = '❌ 測試失敗: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>

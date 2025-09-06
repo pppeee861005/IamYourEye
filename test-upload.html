@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>測試上傳功能</title>
+</head>
+<body>
+    <h1>測試檔案上傳</h1>
+    <input type="file" id="file-upload" accept="image/*">
+    <div id="result"></div>
+
+    <script>
+        console.log('測試頁面載入完成');
+        
+        // 測試基本上傳事件
+        document.getElementById('file-upload').addEventListener('change', function(event) {
+            console.log('檔案上傳事件觸發!');
+            const file = event.target.files[0];
+            console.log('選取的檔案:', file);
+            
+            if (file) {
+                document.getElementById('result').innerHTML = `
+                    <p>檔案名稱: ${file.name}</p>
+                    <p>檔案大小: ${file.size} bytes</p>
+                    <p>檔案類型: ${file.type}</p>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1735 @@
+/* 老花眼救星 - 移動端無障礙樣式 */
+/* CSS Reset and Base */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* 根字體和顏色設定 - 高對比度 */
+:root {
+    --primary-bg: #ffffff;
+    --secondary-bg: #f8f9fa;
+    --accent-bg: #e9ecef;
+    --primary-text: #212529;
+    --secondary-text: #495057;
+    --accent-color: #007bff;
+    --success-color: #28a745;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+    --focus-color: #0066cc;
+    --border-color: #dee2e6;
+    --shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    --touch-target-min: 48px; /* WCAG AA 最小觸控目標 */
+    --font-size-base: 18px; /* 移動端最小字體 */
+}
+
+/* 基礎字體設置 - 無襯線字體 */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微軟雅黑', Roboto, Arial, sans-serif;
+    font-size: var(--font-size-base);
+    line-height: 1.6;
+    color: var(--primary-text);
+    background-color: var(--primary-bg);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* 主容器 - 移動端優先 */
+.app-container {
+    min-height: 100vh;
+    padding: 20px 16px;
+    max-width: 100%;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* AI 問候區域 */
+.greeting-section {
+    background-color: var(--secondary-bg);
+    border-radius: 16px;
+    padding: 24px;
+    text-align: center;
+    border: 2px solid var(--border-color);
+}
+
+.app-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--accent-color);
+    margin-bottom: 16px;
+    line-height: 1.2;
+}
+
+.ai-greeting {
+    margin-bottom: 20px;
+}
+
+.greeting-text {
+    font-size: 1.5rem;
+    color: var(--primary-text);
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.greeting-question {
+    font-size: 1.25rem;
+    color: var(--secondary-text);
+    margin-bottom: 20px;
+}
+
+/* 使用者偏好按鈕 */
+.user-preference {
+    display: flex;
+    gap: 24px;  /* 增加按鈕間距避免誤觸 */
+    justify-content: center;
+    flex-wrap: wrap;
+    padding: 8px;  /* 增加容器內邊距 */
+}
+
+.preference-btn {
+    background-color: var(--accent-color);
+    color: white;
+    border: 3px solid var(--accent-color);
+    border-radius: 12px;
+    font-size: 1.25rem;
+    font-weight: 600;
+    padding: 16px 32px;
+    /* 確保符合 WCAG AA 標準觸控目標 48x48px */
+    min-height: 48px;
+    min-width: 120px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    touch-action: manipulation;
+}
+
+/* OCR 結果顯示區域 */
+.ocr-result-area {
+    background-color: var(--secondary-bg);
+    border: 2px solid var(--success-color);
+    border-radius: 16px;
+    padding: 0;
+    margin: 16px 0;
+    box-shadow: var(--shadow);
+}
+
+.ocr-result-header {
+    background-color: var(--success-color);
+    color: white;
+    padding: 16px 20px;
+    border-radius: 14px 14px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.ocr-result-header h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.ocr-result-content {
+    padding: 20px;
+}
+
+.ocr-result-text {
+    background-color: var(--primary-bg);
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    padding: 16px;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: var(--primary-text);
+    margin-bottom: 16px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.ocr-result-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.close-btn {
+    background: transparent;
+    border: 2px solid rgba(255, 255, 255, 0.7);
+    color: white;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.close-btn:hover,
+.close-btn:focus {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-color: white;
+    outline: none;
+}
+
+.preference-btn:hover,
+.preference-btn:focus {
+    background-color: var(--focus-color);
+    border-color: var(--focus-color);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+    outline: 3px solid rgba(0, 102, 204, 0.3);
+    outline-offset: 2px;
+}
+
+.preference-btn:active {
+    transform: translateY(0);
+}
+
+/* 主要互動區域 */
+.main-interactions {
+    background-color: var(--primary-bg);
+}
+
+.interactions-container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.interaction-item {
+    background-color: var(--secondary-bg);
+    border-radius: 16px;
+    padding: 24px;
+    border: 2px solid var(--border-color);
+    position: relative;
+}
+
+/* 隱藏的文件輸入 */
+.file-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* 主要按鈕樣式 */
+.primary-btn {
+    display: block;
+    width: 100%;
+    background-color: var(--accent-color);
+    color: white;
+    border: 3px solid var(--accent-color);
+    border-radius: 12px;
+    font-size: 1.25rem;
+    font-weight: 600;
+    padding: 16px 24px;
+    /* 確保符合 WCAG AA 標準觸控目標 48x48px */
+    min-height: 48px;
+    min-width: 48px;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    touch-action: manipulation;
+    /* 增加按鈕間距避免誤觸 */
+    margin: 8px 0;
+}
+
+.primary-btn:hover,
+.primary-btn:focus {
+    background-color: var(--focus-color);
+    border-color: var(--focus-color);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+    outline: 3px solid rgba(0, 102, 204, 0.3);
+    outline-offset: 2px;
+}
+
+.primary-btn:active {
+    transform: translateY(0);
+}
+
+/* 特殊按鈕顏色 */
+.fraud-btn {
+    background-color: var(--warning-color);
+    border-color: var(--warning-color);
+    color: var(--primary-text);
+}
+
+.fraud-btn:hover,
+.fraud-btn:focus {
+    background-color: #e0a800;
+    border-color: #e0a800;
+    outline-color: rgba(255, 193, 7, 0.5);
+}
+
+/* 文字輸入區域 */
+.input-label {
+    display: block;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--primary-text);
+    margin-bottom: 12px;
+}
+
+.text-input {
+    width: 100%;
+    font-size: var(--font-size-base);
+    padding: 16px;
+    border: 3px solid var(--border-color);
+    border-radius: 12px;
+    background-color: var(--primary-bg);
+    color: var(--primary-text);
+    resize: vertical;
+    min-height: 80px;
+    margin-bottom: 12px;
+    font-family: inherit;
+    line-height: 1.4;
+}
+
+.text-input:focus {
+    border-color: var(--focus-color);
+    outline: 3px solid rgba(0, 102, 204, 0.3);
+    outline-offset: 2px;
+    background-color: #f8f9ff;
+}
+
+.text-input::placeholder {
+    color: var(--secondary-text);
+    opacity: 0.8;
+}
+
+/* 互動描述 */
+.interaction-desc {
+    font-size: 1rem;
+    color: var(--secondary-text);
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+
+/* 回應區域 */
+.response-area {
+    background-color: var(--secondary-bg);
+    border-radius: 16px;
+    padding: 24px;
+    border: 2px solid var(--success-color);
+}
+
+.response-content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.response-text {
+    font-size: 1.25rem;
+    line-height: 1.6;
+    color: var(--primary-text);
+    background-color: var(--primary-bg);
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+}
+
+.response-actions {
+    display: flex;
+    gap: 16px;  /* 增加按鈕間距避免誤觸 */
+    flex-wrap: wrap;
+    padding: 8px 0;  /* 增加容器內邊距 */
+}
+
+.action-btn {
+    flex: 1;
+    min-width: 140px;
+    background-color: var(--success-color);
+    color: white;
+    border: 3px solid var(--success-color);
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 12px 16px;
+    /* 確保符合 WCAG AA 標準觸控目標 48x48px */
+    min-height: 48px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    touch-action: manipulation;
+}
+
+.action-btn:hover,
+.action-btn:focus {
+    background-color: #1e7e34;
+    border-color: #1e7e34;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+    outline: 3px solid rgba(40, 167, 69, 0.3);
+    outline-offset: 2px;
+}
+
+/* 載入指示器 */
+.loading-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 32px;
+    background-color: var(--secondary-bg);
+    border-radius: 16px;
+    border: 2px solid var(--border-color);
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid var(--accent-bg);
+    border-left: 4px solid var(--accent-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+    font-size: 1.25rem;
+    color: var(--secondary-text);
+    text-align: center;
+    font-weight: 500;
+}
+
+/* 焦點可見性增強 */
+*:focus {
+    outline: 3px solid var(--focus-color);
+    outline-offset: 2px;
+}
+
+/* 觸控回饋 */
+.primary-btn:active,
+.preference-btn:active,
+.action-btn:active {
+    transform: scale(0.98);
+}
+
+/* 平板電腦響應式設計 */
+@media screen and (min-width: 768px) {
+    .app-container {
+        max-width: 768px;
+        margin: 0 auto;
+        padding: 32px 24px;
+    }
+    
+    .app-title {
+        font-size: 3rem;
+    }
+    
+    .greeting-text {
+        font-size: 1.75rem;
+    }
+    
+    .user-preference {
+        gap: 24px;
+    }
+    
+    .preference-btn {
+        min-width: 160px;
+        font-size: 1.5rem;
+        padding: 20px 40px;
+    }
+    
+    .response-actions {
+        flex-direction: row;
+    }
+}
+
+/* 大型平板/桌面響應式設計 */
+@media screen and (min-width: 1024px) {
+    .app-container {
+        max-width: 800px;
+        padding: 40px 32px;
+    }
+}
+
+/* 橫向模式調整 */
+@media screen and (orientation: landscape) {
+    .app-container {
+        padding: 16px;
+        gap: 20px;
+    }
+}
+
+/* 高對比度模式支援 */
+@media (prefers-contrast: high) {
+    :root {
+        --primary-text: #000000;
+        --secondary-text: #333333;
+        --accent-color: #0000ff;
+        --focus-color: #0000cc;
+        --border-color: #666666;
+    }
+    
+    .primary-btn,
+    .preference-btn,
+    .action-btn {
+        border-width: 4px;
+    }
+}
+
+/* 減少動畫（如果用戶偏好） */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* 深色模式支援 */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --primary-bg: #1a1a1a;
+        --secondary-bg: #2d2d2d;
+        --accent-bg: #404040;
+        --primary-text: #ffffff;
+        --secondary-text: #cccccc;
+        --accent-color: #4285f4;
+        --focus-color: #5a9bff;
+        --border-color: #555555;
+    }
+}
+
+/* 隱藏元素的無障礙支援 */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* OCR 結果格式化樣式 */
+.fraud-warning {
+    background-color: #fff3cd;
+    border: 2px solid #ffc107;
+    border-radius: 12px;
+    padding: 16px;
+    margin: 8px 0;
+    color: #856404;
+    font-weight: 600;
+}
+
+.fraud-safe {
+    background-color: #d1ecf1;
+    border: 2px solid #17a2b8;
+    border-radius: 12px;
+    padding: 16px;
+    margin: 8px 0;
+    color: #0c5460;
+    font-weight: 600;
+}
+
+.story-fallback {
+    background-color: #f8f9fa;
+    border: 2px solid #6c757d;
+    border-radius: 12px;
+    padding: 16px;
+    margin: 8px 0;
+    color: var(--primary-text);
+    font-style: italic;
+}
+
+.fraud-fallback {
+    background-color: #f8d7da;
+    border: 2px solid #dc3545;
+    border-radius: 12px;
+    padding: 16px;
+    margin: 8px 0;
+    color: #721c24;
+    font-weight: 600;
+}
+
+/* 重新上傳按鈕 */
+.reupload-btn {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+.reupload-btn:hover,
+.reupload-btn:focus {
+    background-color: var(--focus-color);
+    border-color: var(--focus-color);
+}
+
+/* OCR 進度顯示優化 */
+.loading-text {
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+/* 深色模式下的 OCR 樣式調整 */
+@media (prefers-color-scheme: dark) {
+    .fraud-warning {
+        background-color: #3d3d00;
+        border-color: #ffca2c;
+        color: #fff3cd;
+    }
+    
+    .fraud-safe {
+        background-color: #0c4a6e;
+        border-color: #38bdf8;
+        color: #bae6fd;
+    }
+    
+    .story-fallback {
+        background-color: var(--secondary-bg);
+        border-color: var(--border-color);
+        color: var(--secondary-text);
+    }
+    
+    .fraud-fallback {
+        background-color: #7f1d1d;
+        border-color: #f87171;
+        color: #fecaca;
+    }
+}
+
+/* AI 角色指示器樣式 */
+.role-indicator {
+    background-color: var(--secondary-bg);
+    border: 2px solid var(--accent-color);
+    border-radius: 16px;
+    padding: 12px 20px;
+    margin-bottom: 20px;
+    text-align: center;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow);
+}
+
+.role-indicator-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.role-icon {
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+}
+
+.role-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--primary-text);
+}
+
+/* 不同角色的樣式變化 */
+.role-companion {
+    border-color: var(--accent-color);
+    background-color: var(--secondary-bg);
+}
+
+.role-medical {
+    border-color: #28a745;
+    background-color: #f8fff9;
+}
+
+.role-medical .role-name {
+    color: #155724;
+}
+
+.role-security {
+    border-color: #ffc107;
+    background-color: #fffbf0;
+}
+
+.role-security .role-name {
+    color: #856404;
+}
+
+/* 深色模式下的角色指示器 */
+@media (prefers-color-scheme: dark) {
+    .role-medical {
+        background-color: #0d2818;
+        border-color: #34d058;
+    }
+    
+    .role-medical .role-name {
+        color: #85e89d;
+    }
+    
+    .role-security {
+        background-color: #2d2a00;
+        border-color: #ffdf5d;
+    }
+    
+    .role-security .role-name {
+        color: #f9e71e;
+    }
+}
+
+/* 可用性增強樣式 */
+
+/* WCAG AAA 級別高對比度模式 */
+.accessibility-high-contrast {
+    --primary-bg: #ffffff;
+    --secondary-bg: #ffffff;
+    --accent-bg: #ffffff;
+    --primary-text: #000000;
+    --secondary-text: #000000;
+    --accent-color: #0000ff;
+    --success-color: #008000;
+    --warning-color: #ff8c00;
+    --danger-color: #ff0000;
+    --focus-color: #0000cc;
+    --border-color: #000000;
+    --shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+.accessibility-high-contrast .role-indicator {
+    border: 3px solid #000000;
+    background-color: #ffffff;
+}
+
+.accessibility-high-contrast .role-medical {
+    border-color: #008000;
+    background-color: #ffffff;
+}
+
+.accessibility-high-contrast .role-medical .role-name {
+    color: #008000;
+}
+
+.accessibility-high-contrast .role-security {
+    border-color: #ff8c00;
+    background-color: #ffffff;
+}
+
+.accessibility-high-contrast .role-security .role-name {
+    color: #ff8c00;
+}
+
+/* =================
+   聊天機器人界面樣式
+   ================= */
+
+/* =================
+   上下分離布局樣式
+   ================= */
+
+/* 區域標題樣式 */
+.section-header {
+    text-align: center;
+    margin-bottom: 24px;
+    padding: 16px;
+    background: var(--secondary-bg);
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+}
+
+.section-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--primary-text);
+    margin-bottom: 8px;
+}
+
+.section-desc {
+    font-size: 16px;
+    color: var(--secondary-text);
+    margin: 0;
+}
+
+/* OCR 功能區域樣式 */
+.ocr-section {
+    margin-bottom: 32px;
+    padding: 20px;
+    background: var(--primary-bg);
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+}
+
+.ocr-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+.ocr-item {
+    text-align: center;
+    padding: 20px;
+    background: var(--secondary-bg);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+}
+
+/* OCR 結果顯示 */
+.ocr-result {
+    background: var(--accent-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.result-header {
+    display: flex;
+    justify-content: between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.result-header h3 {
+    margin: 0;
+    color: var(--primary-text);
+    font-size: 18px;
+}
+
+.result-close {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: var(--secondary-text);
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.result-close:hover {
+    background: var(--border-color);
+}
+
+.result-text {
+    background: var(--primary-bg);
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    margin-bottom: 16px;
+    min-height: 100px;
+    font-family: inherit;
+    line-height: 1.6;
+    white-space: pre-wrap;
+}
+
+.result-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+/* 分隔線 */
+.section-divider {
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--border-color), transparent);
+    margin: 32px 0;
+}
+
+/* 聊天機器人區域樣式 */
+.chatbot-section {
+    background: var(--primary-bg);
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+    padding: 20px;
+}
+
+.chatbot-container {
+    background: var(--secondary-bg);
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+/* 聊天區域收起狀態 */
+.chatbot-section.collapsed .chatbot-container {
+    max-height: 60px;
+    overflow: hidden;
+}
+
+.chatbot-section.collapsed .chat-messages,
+.chatbot-section.collapsed .chat-input-area,
+.chatbot-section.collapsed .chat-features {
+    display: none;
+}
+
+.chatbot-area.minimized {
+    transform: translateY(calc(70vh - 60px));
+}
+
+.chatbot-container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 聊天頭部 */
+.chat-header {
+    display: flex;
+    align-items: center;
+    padding: 16px 20px;
+    background: var(--secondary-bg);
+    border-radius: 16px 16px 0 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.chat-avatar-container {
+    position: relative;
+    margin-right: 12px;
+}
+
+.chat-avatar {
+    font-size: 32px;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    border-radius: 50%;
+    border: 3px solid var(--primary-bg);
+    transition: all 0.3s ease;
+}
+
+.chat-avatar:hover {
+    transform: scale(1.1);
+}
+
+.online-indicator {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 12px;
+    height: 12px;
+    background: #4ade80;
+    border: 2px solid var(--primary-bg);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.chat-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-name {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--primary-text);
+    margin-bottom: 2px;
+}
+
+.chat-status {
+    font-size: 14px;
+    color: var(--secondary-text);
+    margin-bottom: 4px;
+}
+
+.role-indicator {
+    display: inline-block;
+}
+
+.role-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.xiaoan-role {
+    background-color: #e3f2fd;
+    color: #1976d2;
+    border: 1px solid #bbdefb;
+}
+
+.doctor-role {
+    background-color: #e8f5e8;
+    color: #2e7d32;
+    border: 1px solid #c8e6c9;
+}
+
+.security-role {
+    background-color: #fff3e0;
+    color: #f57c00;
+    border: 1px solid #ffcc02;
+}
+
+.chat-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.chat-action-icon {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 16px;
+    background: var(--accent-bg);
+    color: var(--primary-text);
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chat-action-icon:hover {
+    background: var(--accent-color);
+    color: white;
+    transform: translateY(-1px);
+}
+
+/* 正在輸入指示器 */
+.typing-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: var(--accent-bg);
+    border-radius: 16px;
+    margin: 8px 16px;
+    font-size: 14px;
+    color: var(--secondary-text);
+}
+
+.typing-dots {
+    display: flex;
+    gap: 2px;
+}
+
+.typing-dots span {
+    width: 6px;
+    height: 6px;
+    background: var(--accent-color);
+    border-radius: 50%;
+    animation: typing 1.5s infinite ease-in-out;
+}
+
+.typing-dots span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.typing-dots span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes typing {
+    0%, 60%, 100% {
+        transform: translateY(0);
+        opacity: 0.4;
+    }
+    30% {
+        transform: translateY(-8px);
+        opacity: 1;
+    }
+}
+
+/* 聊天建議 */
+.chat-suggestions {
+    display: flex;
+    gap: 8px;
+    padding: 8px 16px;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.chat-suggestions::-webkit-scrollbar {
+    display: none;
+}
+
+.suggestion-btn {
+    background: var(--accent-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 6px 12px;
+    font-size: 13px;
+    color: var(--primary-text);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.suggestion-btn:hover {
+    background: var(--accent-color);
+    color: white;
+    border-color: var(--accent-color);
+    transform: translateY(-1px);
+}
+
+/* 輸入工具 */
+.input-tools {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+}
+
+.input-tool-btn {
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 14px;
+    background: transparent;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.input-tool-btn:hover {
+    background: var(--accent-bg);
+}
+
+/* 字數統計 */
+.input-counter {
+    position: absolute;
+    bottom: 2px;
+    right: 4px;
+    font-size: 11px;
+    color: var(--secondary-text);
+    background: var(--primary-bg);
+    padding: 2px 6px;
+    border-radius: 8px;
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+}
+
+.input-wrapper:focus-within .input-counter,
+.chat-input:not(:placeholder-shown) + .input-counter {
+    opacity: 1;
+}
+
+/* 聊天訊息區域 */
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    scroll-behavior: smooth;
+}
+
+/* 訊息樣式 */
+.message {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    animation: messageAppear 0.3s ease;
+}
+
+.user-message {
+    flex-direction: row-reverse;
+}
+
+.message-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.bot-message .message-avatar {
+    background: var(--secondary-bg);
+}
+
+.user-message .message-avatar {
+    background: var(--accent-color);
+    color: white;
+}
+
+.message-content {
+    max-width: 75%;
+    background: var(--secondary-bg);
+    padding: 12px 16px;
+    border-radius: 18px;
+    position: relative;
+}
+
+.user-message .message-content {
+    background: var(--accent-color);
+    color: white;
+}
+
+.message-text {
+    line-height: 1.5;
+    word-wrap: break-word;
+}
+
+.message-time {
+    font-size: 12px;
+    color: var(--secondary-text);
+    margin-top: 4px;
+    text-align: right;
+}
+
+.user-message .message-time {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* 聊天輸入區域 */
+.chat-input-area {
+    border-top: 1px solid var(--border-color);
+    background: var(--primary-bg);
+    padding: 16px 20px;
+}
+
+/* 簡化版聊天輸入樣式 */
+.input-container {
+    display: flex;
+    gap: 10px;
+}
+
+#chat-input {
+    flex: 1;
+    border: 1px solid var(--border-color);
+    border-radius: 25px;
+    padding: 12px 16px;
+    font-size: 16px;
+    outline: none;
+}
+
+#send-btn {
+    background: var(--accent-color);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    padding: 12px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.2s;
+    white-space: nowrap;
+}
+
+#send-btn:hover {
+    background: #45a049;
+}
+
+.typing {
+    color: #666;
+    font-style: italic;
+    display: none;
+    margin-bottom: 10px;
+}
+
+/* 簡化版消息氣泡 */
+.message-bubble {
+    max-width: 70%;
+    padding: 12px 16px;
+    border-radius: 18px;
+    font-size: 16px;
+    line-height: 1.4;
+    margin-bottom: 15px;
+    background: white;
+    border: 1px solid var(--border-color);
+    border-bottom-left-radius: 5px;
+}
+
+.message.user .message-bubble {
+    background: var(--accent-color);
+    color: white;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 18px;
+    margin-left: auto;
+    margin-right: 0;
+}
+
+.chat-input-actions {
+    display: flex;
+    gap: 4px;
+}
+
+.chat-action-btn {
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 18px;
+    background: var(--accent-color);
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+}
+
+.chat-action-btn:hover {
+    background: #0056b3;
+}
+
+.chat-action-btn:disabled {
+    background: var(--border-color);
+    color: var(--secondary-text);
+    cursor: not-allowed;
+}
+
+/* 快速回覆按鈕 */
+.quick-replies {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+}
+
+.quick-reply-btn {
+    background: var(--accent-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 14px;
+    color: var(--primary-text);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.quick-reply-btn:hover {
+    background: var(--accent-color);
+    color: white;
+    border-color: var(--accent-color);
+}
+
+/* 聊天功能按鈕 */
+.chat-features {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    padding: 12px 20px 16px;
+    background: var(--primary-bg);
+}
+
+.feature-btn {
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--border-color);
+    border-radius: 22px;
+    background: var(--secondary-bg);
+    color: var(--primary-text);
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.feature-btn:hover {
+    background: var(--accent-color);
+    color: white;
+    border-color: var(--accent-color);
+}
+
+/* 動畫效果 */
+@keyframes messageAppear {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 響應式設計 */
+@media (min-width: 768px) {
+    .chatbot-area {
+        width: 400px;
+        right: 20px;
+        left: auto;
+        height: 600px;
+        border-radius: 20px;
+        border: 2px solid var(--border-color);
+    }
+
+    .chatbot-area.minimized {
+        transform: translateY(calc(600px - 60px));
+    }
+}
+
+/* 高對比度模式支援 */
+.accessibility-high-contrast .chatbot-area {
+    border-color: #000000;
+    background: #ffffff;
+}
+
+.accessibility-high-contrast .chat-header {
+    background: #ffffff;
+    border-bottom-color: #000000;
+}
+
+.accessibility-high-contrast .message-content {
+    background: #ffffff;
+    border: 2px solid #000000;
+}
+
+.accessibility-high-contrast .user-message .message-content {
+    background: #0000ff;
+    color: #ffffff;
+}
+
+.accessibility-high-contrast .chat-input-container {
+    background: #ffffff;
+    border: 2px solid #000000;
+}
+
+/* 增強聚焦指示器 */
+.accessibility-high-contrast *:focus {
+    outline: 4px solid #0000cc !important;
+    outline-offset: 3px !important;
+    box-shadow: 0 0 0 8px rgba(0, 0, 204, 0.3) !important;
+}
+
+/* 增強按鈕對比 */
+.accessibility-high-contrast .primary-btn,
+.accessibility-high-contrast .preference-btn,
+.accessibility-high-contrast .action-btn {
+    border: 3px solid #000000 !important;
+    color: #000000 !important;
+    font-weight: 700 !important;
+}
+
+.accessibility-high-contrast .primary-btn {
+    background-color: #ffffff !important;
+}
+
+.accessibility-high-contrast .preference-btn {
+    background-color: #0000ff !important;
+    color: #ffffff !important;
+}
+
+.accessibility-high-contrast .action-btn {
+    background-color: #008000 !important;
+    color: #ffffff !important;
+}
+
+/* 增強錯誤和警告訊息 */
+.accessibility-high-contrast .fraud-warning {
+    background-color: #ffffff !important;
+    border: 4px solid #ff8c00 !important;
+    color: #000000 !important;
+    font-weight: 700 !important;
+}
+
+.accessibility-high-contrast .fraud-safe {
+    background-color: #ffffff !important;
+    border: 4px solid #008000 !important;
+    color: #000000 !important;
+    font-weight: 700 !important;
+}
+
+.accessibility-high-contrast .fraud-fallback {
+    background-color: #ffffff !important;
+    border: 4px solid #ff0000 !important;
+    color: #000000 !important;
+    font-weight: 700 !important;
+}
+
+.accessibility-high-contrast .test-error {
+    background-color: #ffffff !important;
+    border: 4px solid #ff0000 !important;
+    color: #000000 !important;
+}
+
+/* 動態字體大小系統 */
+
+/* 標準字體大小 (預設) */
+.accessibility-font-standard {
+    --font-size-base: 18px;
+}
+
+.accessibility-font-standard .app-title {
+    font-size: 2.5rem;
+}
+
+.accessibility-font-standard .greeting-text {
+    font-size: 1.5rem;
+}
+
+.accessibility-font-standard .greeting-question {
+    font-size: 1.25rem;
+}
+
+.accessibility-font-standard .preference-btn {
+    font-size: 1.25rem;
+}
+
+.accessibility-font-standard .primary-btn {
+    font-size: 1.25rem;
+}
+
+.accessibility-font-standard .response-text {
+    font-size: 1.25rem;
+}
+
+/* 大字體 */
+.accessibility-font-large {
+    --font-size-base: 22px;
+}
+
+.accessibility-font-large .app-title {
+    font-size: 3rem;
+}
+
+.accessibility-font-large .greeting-text {
+    font-size: 1.8rem;
+}
+
+.accessibility-font-large .greeting-question {
+    font-size: 1.5rem;
+}
+
+.accessibility-font-large .preference-btn {
+    font-size: 1.5rem;
+    padding: 18px 36px;
+}
+
+.accessibility-font-large .primary-btn {
+    font-size: 1.5rem;
+    padding: 18px 28px;
+}
+
+.accessibility-font-large .response-text {
+    font-size: 1.5rem;
+}
+
+.accessibility-font-large .role-name {
+    font-size: 1.3rem;
+}
+
+.accessibility-font-large .action-btn {
+    font-size: 1.2rem;
+    padding: 14px 18px;
+}
+
+/* 超大字體 */
+.accessibility-font-xlarge {
+    --font-size-base: 26px;
+}
+
+.accessibility-font-xlarge .app-title {
+    font-size: 3.5rem;
+}
+
+.accessibility-font-xlarge .greeting-text {
+    font-size: 2.2rem;
+}
+
+.accessibility-font-xlarge .greeting-question {
+    font-size: 1.8rem;
+}
+
+.accessibility-font-xlarge .preference-btn {
+    font-size: 1.8rem;
+    padding: 20px 40px;
+}
+
+.accessibility-font-xlarge .primary-btn {
+    font-size: 1.8rem;
+    padding: 20px 32px;
+}
+
+.accessibility-font-xlarge .response-text {
+    font-size: 1.8rem;
+    line-height: 1.8;
+}
+
+.accessibility-font-xlarge .role-name {
+    font-size: 1.6rem;
+}
+
+.accessibility-font-xlarge .action-btn {
+    font-size: 1.4rem;
+    padding: 16px 20px;
+}
+
+.accessibility-font-xlarge .input-label {
+    font-size: 1.5rem;
+}
+
+.accessibility-font-xlarge .interaction-desc {
+    font-size: 1.3rem;
+}
+
+/* 響應式調整 - 超大字體模式下的間距優化 */
+.accessibility-font-xlarge .app-container {
+    gap: 32px;
+    padding: 24px 20px;
+}
+
+.accessibility-font-xlarge .interaction-item {
+    padding: 32px;
+}
+
+.accessibility-font-xlarge .greeting-section {
+    padding: 32px;
+}
+
+/* 可用性設定面板樣式 */
+.accessibility-settings {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: var(--secondary-bg);
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: var(--shadow);
+    z-index: 1000;
+    min-width: 280px;
+    max-width: 90vw;
+    display: none;
+}
+
+.accessibility-settings.show {
+    display: block;
+}
+
+.accessibility-settings h3 {
+    margin: 0 0 16px 0;
+    color: var(--primary-text);
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.accessibility-settings-group {
+    margin-bottom: 20px;
+}
+
+.accessibility-settings-group:last-child {
+    margin-bottom: 0;
+}
+
+.accessibility-settings label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--primary-text);
+    font-weight: 500;
+}
+
+.accessibility-settings select,
+.accessibility-settings button {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    background-color: var(--primary-bg);
+    color: var(--primary-text);
+    font-size: 1rem;
+    min-height: var(--touch-target-min);
+}
+
+.accessibility-settings select:focus,
+.accessibility-settings button:focus {
+    outline: 3px solid var(--focus-color);
+    outline-offset: 2px;
+    border-color: var(--focus-color);
+}
+
+.accessibility-settings button {
+    background-color: var(--accent-color);
+    color: white;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.accessibility-settings button:hover {
+    background-color: var(--focus-color);
+}
+
+.accessibility-reset-btn {
+    background-color: var(--warning-color) !important;
+    color: var(--primary-text) !important;
+}
+
+.accessibility-reset-btn:hover {
+    background-color: #e0a800 !important;
+}
+
+/* 設定按鈕 */
+.accessibility-toggle-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    font-size: 1.5rem;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    z-index: 999;
+    transition: all 0.2s ease;
+}
+
+.accessibility-toggle-btn:hover,
+.accessibility-toggle-btn:focus {
+    background-color: var(--focus-color);
+    transform: scale(1.05);
+    outline: 3px solid rgba(0, 102, 204, 0.3);
+    outline-offset: 2px;
+}
+
+/* 高對比度模式下的設定面板 */
+.accessibility-high-contrast .accessibility-settings {
+    border: 3px solid #000000;
+    background-color: #ffffff;
+}
+
+.accessibility-high-contrast .accessibility-settings h3,
+.accessibility-high-contrast .accessibility-settings label {
+    color: #000000;
+    font-weight: 700;
+}
+
+.accessibility-high-contrast .accessibility-settings select {
+    border: 2px solid #000000;
+    background-color: #ffffff;
+    color: #000000;
+}
+
+.accessibility-high-contrast .accessibility-settings button {
+    border: 2px solid #000000;
+    font-weight: 700;
+}
+
+.accessibility-high-contrast .accessibility-toggle-btn {
+    background-color: #0000ff;
+    border: 3px solid #000000;
+}

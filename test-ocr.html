@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OCR測試頁面</title>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.0.2/dist/tesseract.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-result { margin: 20px 0; padding: 10px; border: 1px solid #ccc; }
+        .success { background-color: #d4edda; }
+        .error { background-color: #f8d7da; }
+    </style>
+</head>
+<body>
+    <h1>OCR功能測試</h1>
+
+    <div>
+        <h2>測試1: 基本OCR功能</h2>
+        <button onclick="testBasicOCR()">運行基本OCR測試</button>
+        <div id="basic-test-result" class="test-result"></div>
+    </div>
+
+    <div>
+        <h2>測試2: 中文識別測試</h2>
+        <button onclick="testChineseOCR()">運行中文OCR測試</button>
+        <div id="chinese-test-result" class="test-result"></div>
+    </div>
+
+    <div>
+        <h2>測試3: 系統狀態檢查</h2>
+        <button onclick="checkSystemStatus()">檢查系統狀態</button>
+        <div id="status-result" class="test-result"></div>
+    </div>
+
+    <script>
+        // 創建測試圖片的函數
+        function createTestImage(text, width = 300, height = 100) {
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+
+            // 設置白色背景
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, width, height);
+
+            // 設置文字樣式
+            ctx.fillStyle = 'black';
+            ctx.font = '20px Arial';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'top';
+
+            // 繪製文字
+            ctx.fillText(text, 10, 10);
+
+            return canvas.toDataURL('image/png');
+        }
+
+        // 基本OCR測試
+        async function testBasicOCR() {
+            const resultDiv = document.getElementById('basic-test-result');
+            resultDiv.innerHTML = '測試中...';
+            resultDiv.className = 'test-result';
+
+            try {
+                // 創建測試圖片
+                const testImage = createTestImage('Hello World 123');
+
+                // 執行OCR
+                const result = await Tesseract.recognize(testImage, 'eng', {
+                    logger: m => console.log(m)
+                });
+
+                const extractedText = result.data.text.trim();
+                const confidence = result.data.confidence;
+
+                resultDiv.innerHTML = `
+                    <div class="success">
+                        <h3>✅ 基本OCR測試成功</h3>
+                        <p><strong>識別文字:</strong> "${extractedText}"</p>
+                        <p><strong>信心度:</strong> ${confidence}%</p>
+                        <p><strong>測試圖片文字:</strong> "Hello World 123"</p>
+                    </div>
+                `;
+
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <h3>❌ 基本OCR測試失敗</h3>
+                        <p><strong>錯誤訊息:</strong> ${error.message}</p>
+                    </div>
+                `;
+                resultDiv.className = 'test-result error';
+            }
+        }
+
+        // 中文OCR測試
+        async function testChineseOCR() {
+            const resultDiv = document.getElementById('chinese-test-result');
+            resultDiv.innerHTML = '測試中...';
+            resultDiv.className = 'test-result';
+
+            try {
+                // 創建中文測試圖片
+                const testImage = createTestImage('這是測試文字');
+
+                // 執行OCR
+                const result = await Tesseract.recognize(testImage, 'chi_tra', {
+                    logger: m => console.log(m)
+                });
+
+                const extractedText = result.data.text.trim();
+                const confidence = result.data.confidence;
+
+                resultDiv.innerHTML = `
+                    <div class="success">
+                        <h3>✅ 中文OCR測試成功</h3>
+                        <p><strong>識別文字:</strong> "${extractedText}"</p>
+                        <p><strong>信心度:</strong> ${confidence}%</p>
+                        <p><strong>測試圖片文字:</strong> "這是測試文字"</p>
+                    </div>
+                `;
+
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <h3>❌ 中文OCR測試失敗</h3>
+                        <p><strong>錯誤訊息:</strong> ${error.message}</p>
+                    </div>
+                `;
+                resultDiv.className = 'test-result error';
+            }
+        }
+
+        // 系統狀態檢查
+        function checkSystemStatus() {
+            const resultDiv = document.getElementById('status-result');
+            resultDiv.className = 'test-result success';
+
+            const status = {
+                tesseractAvailable: typeof Tesseract !== 'undefined',
+                tesseractVersion: Tesseract ? Tesseract.version : '未知',
+                userAgent: navigator.userAgent,
+                language: navigator.language,
+                online: navigator.onLine,
+                cookieEnabled: navigator.cookieEnabled
+            };
+
+            resultDiv.innerHTML = `
+                <h3>📊 系統狀態檢查結果</h3>
+                <ul>
+                    <li><strong>Tesseract.js 可用:</strong> ${status.tesseractAvailable ? '✅' : '❌'}</li>
+                    <li><strong>Tesseract.js 版本:</strong> ${status.tesseractVersion}</li>
+                    <li><strong>瀏覽器:</strong> ${status.userAgent.split(' ').pop()}</li>
+                    <li><strong>語言:</strong> ${status.language}</li>
+                    <li><strong>網路連線:</strong> ${status.online ? '✅' : '❌'}</li>
+                    <li><strong>Cookies 啟用:</strong> ${status.cookieEnabled ? '✅' : '❌'}</li>
+                </ul>
+            `;
+        }
+
+        // 頁面載入完成後自動檢查系統狀態
+        window.addEventListener('load', function() {
+            checkSystemStatus();
+        });
+    </script>
+</body>
+</html>

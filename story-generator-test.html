@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>故事生成器測試頁</title>
+  <style>
+    body {
+      font-family: "Noto Sans TC", sans-serif;
+      margin: 2rem;
+      background-color: #f9f9f9;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    #storyInput {
+      width: 100%;
+      height: 100px;
+      font-size: 1rem;
+      padding: 0.5rem;
+      margin-bottom: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      resize: vertical;
+    }
+    #generateBtn {
+      display: block;
+      width: 100%;
+      padding: 0.75rem;
+      font-size: 1.1rem;
+      background-color: #0078d7;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-bottom: 1rem;
+    }
+    #generateBtn:hover {
+      background-color: #005a9e;
+    }
+    #storyOutput {
+      white-space: pre-wrap;
+      background-color: white;
+      padding: 1rem;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      min-height: 150px;
+    }
+  </style>
+</head>
+<body>
+  <h1>故事生成器測試頁</h1>
+  <textarea id="storyInput" placeholder="請輸入故事主題或開頭..."></textarea>
+  <button id="generateBtn">生成故事</button>
+  <div id="storyOutput" aria-live="polite" aria-label="生成的故事內容"></div>
+
+  <script>
+    // 簡易故事生成器範例：根據輸入主題生成一段故事
+    function generateStory(input) {
+      if (!input.trim()) {
+        return "請輸入故事主題或開頭文字。";
+      }
+      // 範例故事生成邏輯（可替換為更複雜的生成器）
+      return (
+        "從前有一個故事，主題是：「" +
+        input.trim() +
+        "」。\n\n" +
+        "這個故事講述了一段奇妙的旅程，充滿了冒險與驚喜。主角在旅途中遇到了許多挑戰，最終成長並獲得了寶貴的經驗。"
+      );
+    }
+
+    document.getElementById("generateBtn").addEventListener("click", () => {
+      const input = document.getElementById("storyInput").value;
+      const output = generateStory(input);
+      document.getElementById("storyOutput").textContent = output;
+    });
+  </script>
+</body>
+</html>

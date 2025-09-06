@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 角色切換系統測試</title>
+    <style>
+        body {
+            font-family: 'Microsoft JhengHei', sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-section {
+            background: #f5f5f5;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        .test-result {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 4px solid #28a745;
+            border-radius: 4px;
+        }
+        .test-error {
+            background: #f8d7da;
+            border-left-color: #dc3545;
+            color: #721c24;
+        }
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .loading {
+            color: #666;
+            font-style: italic;
+        }
+        .role-demo {
+            background: #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>故事 2.1: AI 角色切換系統測試</h1>
+
+    <div class="test-section">
+        <h2>驗收標準 1-9: 角色切換功能測試</h2>
+        <button class="test-button" onclick="testDefaultRole()">測試預設小安角色</button>
+        <button class="test-button" onclick="testMedicalRole()">測試智能醫師角色</button>
+        <button class="test-button" onclick="testAntifraudRole()">測試防詐警察角色</button>
+        <button class="test-button" onclick="testRoleSwitching()">測試自動角色切換</button>
+        <div id="basic-test-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>角色指示器測試</h2>
+        <button class="test-button" onclick="testRoleIndicator()">測試角色指示器更新</button>
+        <div id="indicator-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>多輪對話測試</h2>
+        <button class="test-button" onclick="testConversationFlow()">測試對話流程</button>
+        <button class="test-button" onclick="testRoleConsistency()">測試角色一致性</button>
+        <div id="conversation-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>System Prompt 測試</h2>
+        <button class="test-button" onclick="testSystemPrompts()">測試各角色 Prompt</button>
+        <button class="test-button" onclick="testMedicalConstraints()">測試醫師「三不一廣泛」原則</button>
+        <div id="prompt-results"></div>
+    </div>
+
+    <!-- 角色示範區域 -->
+    <div class="test-section">
+        <h2>角色切換示範</h2>
+        <div id="role-demo-area">
+            <div class="role-demo">
+                <h4>當前角色：<span id="current-role-name">載入中...</span></h4>
+                <p><strong>角色描述：</strong><span id="role-description">載入中...</span></p>
+                <p><strong>System Prompt：</strong><span id="role-prompt">載入中...</span></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 載入主要的 JavaScript -->
+    <script src="js/main.js"></script>
+
+    <script>
+        let assistant;
+        let roleManager;
+
+        // 初始化測試環境
+        document.addEventListener('DOMContentLoaded', function() {
+            assistant = new PresbytopiaAssistant();
+            roleManager = assistant.roleManager;
+            
+            updateRoleDemo();
+            console.log('✅ 角色切換測試環境初始化完成');
+        });
+
+        function showResult(containerId, message, isError = false) {
+            const container = document.getElementById(containerId);
+            const div = document.createElement('div');
+            div.className = isError ? 'test-result test-error' : 'test-result';
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}:</strong> ${message}`;
+            container.appendChild(div);
+        }
+
+        function showLoading(containerId, message) {
+            showResult(containerId, `<span class="loading">${message}</span>`);
+        }
+
+        function updateRoleDemo() {
+            const currentRole = roleManager.getCurrentRole();
+            if (currentRole) {
+                document.getElementById('current-role-name').textContent = currentRole.displayName;
+                document.getElementById('role-description').textContent = `${currentRole.name} (${currentRole.type})`;
+                document.getElementById('role-prompt').textContent = currentRole.systemPrompt.substring(0, 150) + '...';
+            }
+        }
+
+        // 測試預設小安角色
+        async function testDefaultRole() {
+            const containerId = 'basic-test-results';
+            showLoading(containerId, '測試預設小安角色中...');
+
+            try {
+                roleManager.resetToDefault();
+                const currentRole = roleManager.getCurrentRole();
+                const pass = currentRole.name === '小安' && currentRole.type === 'companion';
+                
+                showResult(containerId, 
+                    `預設角色測試 ${pass ? '通過' : '失敗'}: 當前角色為 ${currentRole.displayName}`, !pass);
+
+                // 測試小安的回應
+                const response = await assistant.generateChatResponse('今天天氣真好');
+                const hasWarmth = response.content && response.content.length > 0;
+                
+                showResult(containerId, 
+                    `小安回應測試 ${hasWarmth ? '通過' : '失敗'}: ${response.content}`, !hasWarmth);
+                
+                updateRoleDemo();
+                    
+            } catch (error) {
+                showResult(containerId, `預設角色測試失敗: ${error.message}`, true);
+            }
+        }
+
+        // 測試智能醫師角色
+        async function testMedicalRole() {
+            const containerId = 'basic-test-results';
+            showLoading(containerId, '測試智能醫師角色中...');
+
+            try {
+                const medicalMessage = '我想問一下這個藥品的使用方法';
+                const response = await assistant.generateChatResponse(medicalMessage);
+                
+                const currentRole = roleManager.getCurrentRole();
+                const rolePass = currentRole.name === '智能醫師';
+                const constraintPass = !response.content.includes('劑量') && 
+                                     !response.content.includes('診斷') &&
+                                     response.content.includes('醫師');
+                
+                showResult(containerId, 
+                    `醫師角色切換 ${rolePass ? '通過' : '失敗'}: 當前角色 ${currentRole.displayName}`, !rolePass);
+                
+                showResult(containerId, 
+                    `「三不一廣泛」原則 ${constraintPass ? '通過' : '失敗'}: ${response.content}`, !constraintPass);
+                
+                updateRoleDemo();
+                    
+            } catch (error) {
+                showResult(containerId, `醫師角色測試失敗: ${error.message}`, true);
+            }
+        }
+
+        // 測試防詐警察角色
+        async function testAntifraudRole() {
+            const containerId = 'basic-test-results';
+            showLoading(containerId, '測試防詐警察角色中...');
+
+            try {
+                const fraudMessage = '恭喜您中獎了！請立即匯款領取獎金';
+                const response = await assistant.generateChatResponse(fraudMessage);
+                
+                const currentRole = roleManager.getCurrentRole();
+                const rolePass = currentRole.name === '智能防詐警察';
+                const warningPass = response.content.includes('可疑') || 
+                                   response.content.includes('詐騙') ||
+                                   response.content.includes('165');
+                
+                showResult(containerId, 
+                    `防詐角色切換 ${rolePass ? '通過' : '失敗'}: 當前角色 ${currentRole.displayName}`, !rolePass);
+                
+                showResult(containerId, 
+                    `詐騙警告功能 ${warningPass ? '通過' : '失敗'}: ${response.content}`, !warningPass);
+                
+                updateRoleDemo();
+                    
+            } catch (error) {
+                showResult(containerId, `防詐角色測試失敗: ${error.message}`, true);
+            }
+        }
+
+        // 測試自動角色切換
+        async function testRoleSwitching() {
+            const containerId = 'basic-test-results';
+            showLoading(containerId, '測試自動角色切換中...');
+
+            try {
+                const testCases = [
+                    { message: '今天天氣很好', expectedRole: '小安' },
+                    { message: '我想了解這個藥物', expectedRole: '智能醫師' },
+                    { message: '收到中獎簡訊', expectedRole: '智能防詐警察' },
+                    { message: '謝謝你的幫助', expectedRole: '小安' }
+                ];
+
+                for (const testCase of testCases) {
+                    const response = await assistant.generateChatResponse(testCase.message);
+                    const currentRole = roleManager.getCurrentRole();
+                    const pass = currentRole.name === testCase.expectedRole;
+                    
+                    showResult(containerId, 
+                        `"${testCase.message}" → ${currentRole.name} ${pass ? '✓' : '✗'}`, !pass);
+                }
+
+                updateRoleDemo();
+                
+            } catch (error) {
+                showResult(containerId, `角色切換測試失敗: ${error.message}`, true);
+            }
+        }
+
+        // 測試角色指示器
+        async function testRoleIndicator() {
+            const containerId = 'indicator-results';
+            showLoading(containerId, '測試角色指示器中...');
+
+            try {
+                const indicator = document.getElementById('role-indicator');
+                const hasIndicator = indicator !== null;
+                
+                showResult(containerId, 
+                    `角色指示器存在 ${hasIndicator ? '通過' : '失敗'}`, !hasIndicator);
+
+                if (hasIndicator) {
+                    // 測試指示器更新
+                    roleManager.switchRole('doctor');
+                    assistant.updateRoleIndicator();
+                    
+                    const indicatorText = indicator.textContent;
+                    const hasCorrectText = indicatorText.includes('智能醫師');
+                    
+                    showResult(containerId, 
+                        `指示器更新 ${hasCorrectText ? '通過' : '失敗'}: ${indicatorText}`, !hasCorrectText);
+                    
+                    // 測試樣式變化
+                    const hasCorrectClass = indicator.className.includes('role-medical');
+                    showResult(containerId, 
+                        `樣式更新 ${hasCorrectClass ? '通過' : '失敗'}: ${indicator.className}`, !hasCorrectClass);
+                }
+                
+                updateRoleDemo();
+                    
+            } catch (error) {
+                showResult(containerId, `角色指示器測試失敗: ${error.message}`, true);
+            }
+        }
+
+        // 測試對話流程
+        async function testConversationFlow() {
+            const containerId = 'conversation-results';
+            showLoading(containerId, '測試對話流程中...');
+
+            try {
+                // 重置到預設角色
+                roleManager.resetToDefault();
+                
+                // 模擬多輪對話
+                const conversation = [
+                    '你好小安',
+                    '我身體不太舒服',
+                    '收到一封奇怪的信',
+                    '謝謝你的幫助'
+                ];
+
+                for (const message of conversation) {
+                    const response = await assistant.generateChatResponse(message);
+                    const currentRole = roleManager.getCurrentRole();
+                    
+                    showResult(containerId, 
+                        `"${message}" → ${currentRole.name}: ${response.content.substring(0, 50)}...`);
+                    
+                    // 短暫延遲模擬真實對話
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                }
+                
+                updateRoleDemo();
+                
+            } catch (error) {
+                showResult(containerId, `對話流程測試失敗: ${error.message}`, true);
+            }
+        }
+
+        // 測試角色一致性
+        async function testRoleConsistency() {
+            const containerId = 'conversation-results';
+            showLoading(containerId, '測試角色一致性中...');
+
+            try {
+                // 設定為醫師角色
+                roleManager.switchRole('doctor');
+                assistant.updateRoleIndicator();
+                
+                const medicalQuestions = [
+                    '這個藥怎麼吃？',
+                    '我可以診斷疾病嗎？',
+                    '健康飲食的建議'
+                ];
+
+                let consistencyPass = true;
+                
+                for (const question of medicalQuestions) {
+                    const response = await assistant.generateRoleBasedResponse(question);
+                    const currentRole = roleManager.getCurrentRole();
+                    
+                    // 檢查是否維持醫師角色
+                    if (currentRole.name !== '智能醫師') {
+                        consistencyPass = false;
+                    }
+                    
+                    // 檢查是否遵守三不原則
+                    const violatesConstraints = response.content.includes('診斷') || 
+                                               response.content.includes('劑量') ||
+                                               response.content.includes('吃');
+                    
+                    showResult(containerId, 
+                        `"${question}" 約束檢查 ${violatesConstraints ? '失敗' : '通過'}`, violatesConstraints);
+                }
+                
+                showResult(containerId, 
+                    `角色一致性 ${consistencyPass ? '通過' : '失敗'}`, !consistencyPass);
+                
+                updateRoleDemo();
+                
+            } catch (error) {
+                showResult(containerId, `角色一致性測試失敗: ${error.message}`, true);
+            }
+        }
+
+        // 測試 System Prompts
+        async function testSystemPrompts() {
+            const containerId = 'prompt-results';
+            showLoading(containerId, '測試 System Prompts 中...');
+
+            try {
+                const roles = ['xiaoan', 'doctor', 'antifraud'];
+                
+                for (const roleId of roles) {
+                    const prompt = roleManager.getRolePrompt(roleId);
+                    const hasPrompt = prompt && prompt.length > 50;
+                    const roleName = roleManager.roles[roleId].name;
+                    
+                    showResult(containerId, 
+                        `${roleName} System Prompt ${hasPrompt ? '通過' : '失敗'}: 長度 ${prompt.length} 字符`, !hasPrompt);
+                }
+                
+            } catch (error) {
+                showResult(containerId, `System Prompt 測試失敗: ${error.message}`, true);
+            }
+        }
+
+        // 測試醫師約束
+        async function testMedicalConstraints() {
+            const containerId = 'prompt-results';
+            showLoading(containerId, '測試醫師約束原則中...');
+
+            try {
+                roleManager.switchRole('doctor');
+                const prompt = roleManager.getRolePrompt();
+                
+                // 檢查 prompt 是否包含約束條件
+                const hasConstraints = prompt.includes('三不一廣泛') || 
+                                      (prompt.includes('不診斷') && 
+                                       prompt.includes('不建議') && 
+                                       prompt.includes('不討論藥品'));
+                
+                showResult(containerId, 
+                    `醫師約束原則 ${hasConstraints ? '通過' : '失敗'}: Prompt 包含約束條件`, !hasConstraints);
+                
+                updateRoleDemo();
+                
+            } catch (error) {
+                showResult(containerId, `醫師約束測試失敗: ${error.message}`, true);
+            }
+        }
+
+        // 運行所有測試
+        function runAllTests() {
+            setTimeout(() => testDefaultRole(), 100);
+            setTimeout(() => testMedicalRole(), 2000);
+            setTimeout(() => testAntifraudRole(), 4000);
+            setTimeout(() => testRoleSwitching(), 6000);
+            setTimeout(() => testRoleIndicator(), 8000);
+            setTimeout(() => testSystemPrompts(), 9000);
+            setTimeout(() => testMedicalConstraints(), 10000);
+            setTimeout(() => testConversationFlow(), 11000);
+            setTimeout(() => testRoleConsistency(), 15000);
+        }
+
+        // 在頁面載入完成後顯示快速測試按鈕
+        document.addEventListener('DOMContentLoaded', function() {
+            const button = document.createElement('button');
+            button.className = 'test-button';
+            button.textContent = '🚀 運行所有測試';
+            button.onclick = runAllTests;
+            button.style.fontSize = '16px';
+            button.style.padding = '15px 30px';
+            document.body.insertBefore(button, document.body.firstChild);
+        });
+    </script>
+</body>
+</html>

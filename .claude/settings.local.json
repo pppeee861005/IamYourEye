@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(/D:\\gameplace\\Research\\BMad\\老花眼/**)",
+      "Read(/D:\\gameplace\\Research\\BMad\\老花眼/**)",
+      "Read(/D:\\gameplace\\Research\\BMad\\老花眼/**)",
+      "Read(/D:\\gameplace\\Research\\BMad\\老花眼/**)",
+      "Read(/D:\\gameplace\\Research\\BMad\\老花眼\\css/**)",
+      "Read(/D:\\gameplace\\Research\\BMad\\老花眼\\js/**)",
+      "Bash(python:*)",
+      "Read(/D:\\gameplace\\Research\\BMad\\老花眼\\js/**)",
+      "Read(/D:\\gameplace\\Research\\BMad\\老花眼\\js/**)",
+      "Read(/D:\\gameplace\\Research\\BMad\\老花眼\\js/**)",
+      "Read(/D:\\gameplace\\Research\\BMad\\老花眼\\js/**)",
+      "Read(/D:\\gameplace\\Research\\BMad\\老花眼\\js/**)",
+      "Read(/D:\\gameplace\\Research\\BMad\\老花眼\\js/**)",
+      "Read(/D:\\gameplace\\Research\\BMad\\老花眼\\js/**)",
+      "Read(/D:\\gameplace\\Research\\BMad\\老花眼\\js/**)",
+      "Read(/D:\\gameplace\\Research\\BMad\\老花眼\\js/**)",
+      "Read(/D:\\gameplace\\Research\\BMad\\老花眼\\js/**)",
+      "Bash(start http://localhost:8000)",
+      "Read(/D:\\gameplace\\Research\\BMad\\老花眼\\js/**)",
+      "Read(/D:\\gameplace\\Research\\BMad\\老花眼\\js/**)",
+      "Read(/D:\\gameplace\\Research\\BMad\\老花眼/**)",
+      "Bash(node:*)",
+      "Read(/D:\\gameplace\\Research\\BMad\\老花眼\\js/**)",
+      "Read(/D:\\gameplace\\Research\\BMad\\老花眼\\js/**)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
