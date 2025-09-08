@@ -18,18 +18,25 @@
     <script type="module" src="./js/story-generator.js"></script>
 </head>
 <body>
+    <!-- 語言切換器 -->
+    <div class="language-switcher">
+        <button id="lang-zh" class="lang-btn active" data-lang="zh-TW" aria-label="繁體中文">繁</button>
+        <button id="lang-en" class="lang-btn" data-lang="en" aria-label="English">EN</button>
+        <button id="lang-ja" class="lang-btn" data-lang="ja" aria-label="日本語">日</button>
+    </div>
+
     <!-- 主容器 - 語義化HTML結構 -->
     <main class="app-container" role="main">
         
         <!-- AI問候區域 -->
         <header class="greeting-section">
-            <h1 class="app-title">😊 老花眼救星</h1>
+            <h1 class="app-title" data-i18n="app-title">😊 老花眼救星</h1>
             <div class="ai-greeting" id="ai-greeting">
-                <div class="greeting-text">您好！我是小安，您的貼心助手 😊</div>
-                <div class="greeting-question">請問我該怎麼稱呼您呢？</div>
+                <div class="greeting-text" data-i18n="greeting-text">您好！我是小安，您的貼心助手 😊</div>
+                <div class="greeting-question" data-i18n="greeting-question">請問我該怎麼稱呼您呢？</div>
                 <div class="user-preference" id="user-preference">
-                    <button class="preference-btn" id="grandpa-btn" aria-label="選擇爺爺稱謂">爺爺</button>
-                    <button class="preference-btn" id="grandma-btn" aria-label="選擇奶奶稱謂">奶奶</button>
+                    <button class="preference-btn" id="grandpa-btn" aria-label="選擇爺爺稱謂" data-i18n="grandpa-btn">爺爺</button>
+                    <button class="preference-btn" id="grandma-btn" aria-label="選擇奶奶稱謂" data-i18n="grandma-btn">奶奶</button>
                 </div>
             </div>
         </header>
@@ -38,7 +45,7 @@
         <div id="role-indicator" class="role-indicator" style="display: none;">
             <div class="role-indicator-content">
                 <span class="role-icon">😊</span>
-                <span class="role-name">小安正在協助您</span>
+                <span class="role-name" data-i18n="role-name">小安正在協助您</span>
             </div>
         </div>
 
@@ -48,28 +55,29 @@
             <div class="interactions-container">
                 <!-- 上傳照片功能 -->
                 <div class="interaction-item">
-                    <label for="photo-upload" class="primary-btn" role="button" tabindex="0" aria-label="上傳照片進行文字識別">
+                    <label for="photo-upload" class="primary-btn" role="button" tabindex="0" aria-label="上傳照片進行文字識別" data-i18n="upload-btn">
                         📷 上傳照片
                         <input type="file" id="photo-upload" class="file-input" accept="image/*" aria-describedby="upload-desc">
                     </label>
-                    <p class="interaction-desc" id="upload-desc">上傳圖片，小安會幫您識別文字內容</p>
+                    <p class="interaction-desc" id="upload-desc" data-i18n="upload-desc">上傳圖片，小安會幫您識別文字內容</p>
                 </div>
 
 
 
                 <!-- 故事生成器功能 -->
                 <div class="interaction-item">
-                    <label for="story-text-input" class="input-label">📖 故事生成器</label>
+                    <label for="story-text-input" class="input-label" data-i18n="story-label">📖 故事生成器</label>
                     <textarea
                         id="story-text-input"
                         class="text-input"
                         placeholder="輸入文字內容，小安會為您生成溫馨故事..."
                         rows="3"
                         maxlength="1000"
-                        aria-describedby="story-desc">
+                        aria-describedby="story-desc"
+                        data-i18n-placeholder="story-placeholder">
                     </textarea>
-                    <p class="interaction-desc" id="story-desc">讓小安將複雜文字轉化為溫馨易懂的故事</p>
-                    <button class="primary-btn" id="generate-story-btn" aria-label="生成故事">
+                    <p class="interaction-desc" id="story-desc" data-i18n="story-desc">讓小安將複雜文字轉化為溫馨易懂的故事</p>
+                    <button class="primary-btn" id="generate-story-btn" aria-label="生成故事" data-i18n="generate-btn">
                         📖 生成故事
                     </button>
                 </div>
@@ -79,13 +87,13 @@
         <!-- OCR 結果顯示區域 -->
         <section id="ocr-result-area" class="ocr-result-area" style="display: none;" aria-live="polite">
             <div class="ocr-result-header">
-                <h3>📝 識別結果</h3>
+                <h3 data-i18n="ocr-result-title">📝 識別結果</h3>
                 <button id="ocr-result-close" class="close-btn" aria-label="關閉識別結果">✕</button>
             </div>
             <div class="ocr-result-content">
                 <div id="ocr-result-text" class="ocr-result-text"></div>
                 <div class="ocr-result-actions">
-                    <button id="copy-result-btn" class="action-btn" aria-label="複製識別結果">
+                    <button id="copy-result-btn" class="action-btn" aria-label="複製識別結果" data-i18n="copy-btn">
                         📋 複製
                     </button>
                 </div>
@@ -95,19 +103,19 @@
         <!-- 故事結果顯示區域 -->
         <section id="story-result-area" class="story-result-area" style="display: none;" aria-live="polite">
             <div class="story-result-header">
-                <h3>📖 生成的故事</h3>
+                <h3 data-i18n="story-result-title">📖 生成的故事</h3>
                 <button id="story-result-close" class="close-btn" aria-label="關閉故事結果">✕</button>
             </div>
             <div class="story-result-content">
                 <div id="story-content" class="story-content"></div>
                 <div class="story-result-actions">
-                    <button id="read-story-aloud-btn" class="action-btn" aria-label="朗讀故事">
+                    <button id="read-story-aloud-btn" class="action-btn" aria-label="朗讀故事" data-i18n="read-aloud-btn">
                         🔊 朗讀
                     </button>
-                    <button id="copy-story-btn" class="action-btn" aria-label="複製故事">
+                    <button id="copy-story-btn" class="action-btn" aria-label="複製故事" data-i18n="copy-btn">
                         📋 複製
                     </button>
-                    <button id="send-story-to-chat-btn" class="action-btn" aria-label="發送到對話">
+                    <button id="send-story-to-chat-btn" class="action-btn" aria-label="發送到對話" data-i18n="send-to-chat-btn">
                         💬 發送到對話
                     </button>
                 </div>
@@ -119,21 +127,21 @@
         <!-- 載入指示器 -->
         <div id="loading-indicator" class="loading-indicator" style="display: none;" aria-live="polite">
             <div class="loading-spinner" aria-hidden="true"></div>
-            <div class="loading-text">小安正在處理中...</div>
+            <div class="loading-text" data-i18n="loading-text">小安正在處理中...</div>
         </div>
 
         <!-- Gemini AI 聊天機器人界面 -->
         <section class="chatbot-section">
             <div class="chat-container">
                 <div class="chat-header">
-                    <h1>Gemini AI 聊天</h1>
+                    <h1 data-i18n="chat-title">Gemini AI 聊天</h1>
                 </div>
                 <div class="chat-messages" id="chat-messages">
                     <!-- 聊天訊息將在此處顯示 -->
                 </div>
                 <div class="chat-input">
-                    <input type="text" id="user-input" placeholder="輸入您的訊息...">
-                    <button id="send-button">發送</button>
+                    <input type="text" id="user-input" placeholder="輸入您的訊息..." data-i18n-placeholder="chat-placeholder">
+                    <button id="send-button" data-i18n="send-btn">發送</button>
                 </div>
             </div>
         </section>
@@ -144,24 +152,28 @@
     <footer class="app-footer" style="text-align: center; padding: 20px; background-color: #f8f9fa; border-top: 1px solid #dee2e6; margin-top: 40px;">
         <div class="version-info" style="font-size: 0.85em; color: #6c757d;">
             <div style="margin-bottom: 8px;">
-                <strong id="app-name">老花眼救星</strong> v<span id="app-version">1.2.1</span>
-                <span style="font-size: 0.8em; color: #9ca3af;">(建置: <span id="build-date">2025-01-08</span>)</span>
+                <strong id="app-name" data-i18n="app-name">老花眼救星</strong> v<span id="app-version">1.0.4</span>
+                <span style="font-size: 0.8em; color: #9ca3af;">(建置: <span id="build-date">2025-09-08</span>)</span>
             </div>
             <div style="font-size: 0.8em; margin-bottom: 8px;">
                 模組版本:
                 <span id="module-versions">
-                    Gemini Chat v<span id="gemini-version">1.2.1</span> |
-                    OCR 處理器 v<span id="ocr-version">1.2.1</span> |
-                    主應用 v<span id="main-version">1.2.1</span> |
-                    日誌系統 v<span id="logger-version">1.2.1</span>
+                    Gemini Chat v<span id="gemini-version">1.0.1</span> |
+                    OCR 處理器 v<span id="ocr-version">1.0.1</span> |
+                    主應用 v<span id="main-version">1.0.1</span> |
+                    日誌系統 v<span id="logger-version">1.0.1</span>
                 </span>
             </div>
+            <!-- 版本更新: v1.0.4 - 新增中英日語言切換功能 (2025/09/08) -->
             <div style="font-size: 0.75em; margin-bottom: 8px;">
-                功能模組: <span id="features-list">載入中...</span>
+                <span data-i18n="features-label">功能模組:</span> <span id="features-list">載入中...</span>
+            </div>
+            <div style="font-size: 0.75em; margin-bottom: 8px; color: #6c757d;">
+                預設對話語言: 繁體中文 (支援中英日語言切換)
             </div>
             <div style="font-size: 0.75em; color: #9ca3af;">
-                © 2025 老花眼救星 - 專為長者設計的智慧助手
-                <button id="show-diagnostics" style="margin-left: 10px; padding: 2px 8px; font-size: 0.7em; background: #e9ecef; border: 1px solid #dee2e6; border-radius: 3px; cursor: pointer;" title="顯示系統診斷資訊">診斷</button>
+                © 2025 <span data-i18n="copyright">老花眼救星 - 專為長者設計的智慧助手</span>
+                <button id="show-diagnostics" style="margin-left: 10px; padding: 2px 8px; font-size: 0.7em; background: #e9ecef; border: 1px solid #dee2e6; border-radius: 3px; cursor: pointer;" title="顯示系統診斷資訊" data-i18n="diagnostics-btn">診斷</button>
             </div>
         </div>
     </footer>
@@ -171,13 +183,160 @@
         // 所有模組已自動載入 .env 配置並初始化
     </script>
 
+    <!-- 語言切換和國際化腳本 -->
+    <script>
+        // 語言包
+        const translations = {
+            'zh-TW': {
+                'app-title': '😊 老花眼救星',
+                'greeting-text': '您好！我是小安，您的貼心助手 😊',
+                'greeting-question': '請問我該怎麼稱呼您呢？',
+                'grandpa-btn': '爺爺',
+                'grandma-btn': '奶奶',
+                'upload-btn': '📷 上傳照片',
+                'upload-desc': '上傳圖片，小安會幫您識別文字內容',
+                'story-label': '📖 故事生成器',
+                'story-placeholder': '輸入文字內容，小安會為您生成溫馨故事...',
+                'story-desc': '讓小安將複雜文字轉化為溫馨易懂的故事',
+                'generate-btn': '📖 生成故事',
+                'ocr-result-title': '📝 識別結果',
+                'story-result-title': '📖 生成的故事',
+                'copy-btn': '📋 複製',
+                'read-aloud-btn': '🔊 朗讀',
+                'send-to-chat-btn': '💬 發送到對話',
+                'loading-text': '小安正在處理中...',
+                'chat-title': 'Gemini AI 聊天',
+                'chat-placeholder': '輸入您的訊息...',
+                'send-btn': '發送',
+                'app-name': '老花眼救星',
+
+                'features-label': '功能模組:',
+                'copyright': '老花眼救星 - 專為長者設計的智慧助手',
+                'diagnostics-btn': '診斷',
+                'role-name': '小安正在協助您'
+            },
+            'en': {
+                'app-title': '😊 Eye Helper',
+                'greeting-text': 'Hello! I\'m Xiao An, your caring assistant 😊',
+                'greeting-question': 'How should I address you?',
+                'grandpa-btn': 'Grandpa',
+                'grandma-btn': 'Grandma',
+                'upload-btn': '📷 Upload Photo',
+                'upload-desc': 'Upload an image, and Xiao An will help you recognize the text',
+                'story-label': '📖 Story Generator',
+                'story-placeholder': 'Enter text content, and Xiao An will generate a heartwarming story for you...',
+                'story-desc': 'Let Xiao An transform complex text into a warm and easy-to-understand story',
+                'generate-btn': '📖 Generate Story',
+                'ocr-result-title': '📝 Recognition Result',
+                'story-result-title': '📖 Generated Story',
+                'copy-btn': '📋 Copy',
+                'read-aloud-btn': '🔊 Read Aloud',
+                'send-to-chat-btn': '💬 Send to Chat',
+                'loading-text': 'Xiao An is processing...',
+                'chat-title': 'Gemini AI Chat',
+                'chat-placeholder': 'Enter your message...',
+                'send-btn': 'Send',
+                'app-name': 'Eye Helper',
+
+                'features-label': 'Features:',
+                'copyright': 'Eye Helper - Smart Assistant Designed for Seniors',
+                'diagnostics-btn': 'Diagnostics',
+                'role-name': 'Xiao An is assisting you'
+            },
+            'ja': {
+                'app-title': '😊 老眼サポート',
+                'greeting-text': 'こんにちは！私は小安、あなたの優しいアシスタントです 😊',
+                'greeting-question': 'どのようにお呼びすればよろしいですか？',
+                'grandpa-btn': 'おじいちゃん',
+                'grandma-btn': 'おばあちゃん',
+                'upload-btn': '📷 写真をアップロード',
+                'upload-desc': '画像をアップロードすると、小安が文字を認識します',
+                'story-label': '📖 お話生成器',
+                'story-placeholder': 'テキストを入力すると、小安が温かいお話を生成します...',
+                'story-desc': '小安に複雑なテキストを温かくわかりやすいお話に変換してもらいましょう',
+                'generate-btn': '📖 お話を生成',
+                'ocr-result-title': '📝 認識結果',
+                'story-result-title': '📖 生成されたお話',
+                'copy-btn': '📋 コピー',
+                'read-aloud-btn': '🔊 読み上げ',
+                'send-to-chat-btn': '💬 チャットに送信',
+                'loading-text': '小安が処理中...',
+                'chat-title': 'Gemini AI チャット',
+                'chat-placeholder': 'メッセージを入力してください...',
+                'send-btn': '送信',
+                'app-name': '老眼サポート',
+
+                'features-label': '機能モジュール:',
+                'copyright': '老眼サポート - 高齢者向けに設計されたスマートアシスタント',
+                'diagnostics-btn': '診断',
+                'role-name': '小安がお手伝いしています'
+            }
+        };
+
+        // 當前語言
+        let currentLang = 'zh-TW';
+
+        // 語言切換功能
+        function switchLanguage(lang) {
+            currentLang = lang;
+            document.documentElement.lang = lang;
+            
+            // 更新所有帶有 data-i18n 屬性的元素
+            const elements = document.querySelectorAll('[data-i18n]');
+            elements.forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                if (translations[lang][key]) {
+                    element.textContent = translations[lang][key];
+                }
+            });
+
+            // 更新 placeholder
+            const placeholders = document.querySelectorAll('[data-i18n-placeholder]');
+            placeholders.forEach(element => {
+                const key = element.getAttribute('data-i18n-placeholder');
+                if (translations[lang][key]) {
+                    element.placeholder = translations[lang][key];
+                }
+            });
+
+            // 更新按鈕狀態
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(`lang-${lang.split('-')[0]}`).classList.add('active');
+
+            // 儲存語言偏好到 localStorage
+            localStorage.setItem('preferred-language', lang);
+        }
+
+        // 初始化語言切換器
+        function initLanguageSwitcher() {
+            // 從 localStorage 載入偏好語言
+            const savedLang = localStorage.getItem('preferred-language');
+            if (savedLang && translations[savedLang]) {
+                switchLanguage(savedLang);
+            }
+
+            // 綁定語言切換按鈕事件
+            document.getElementById('lang-zh').addEventListener('click', () => switchLanguage('zh-TW'));
+            document.getElementById('lang-en').addEventListener('click', () => switchLanguage('en'));
+            document.getElementById('lang-ja').addEventListener('click', () => switchLanguage('ja'));
+        }
+
+        // 頁面載入完成後初始化
+        document.addEventListener('DOMContentLoaded', initLanguageSwitcher);
+    </script>
+
     <!-- 版本資訊更新腳本 -->
     <script>
         // 更新版本顯示
         function updateVersionDisplay() {
             if (window.APP_CONFIG) {
                 // 更新基本資訊
-                document.getElementById('app-name').textContent = window.APP_CONFIG.APP_NAME || '老花眼救星';
+                const appNameElement = document.getElementById('app-name');
+                if (appNameElement) {
+                    appNameElement.textContent = window.APP_CONFIG.APP_NAME || translations[currentLang]['app-name'];
+                }
                 document.getElementById('app-version').textContent = window.APP_CONFIG.APP_VERSION || '1.0.0';
                 document.getElementById('build-date').textContent = window.APP_CONFIG.BUILD_DATE || '未知';
 

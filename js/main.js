@@ -1,9 +1,14 @@
 /**
  * 老花眼救星 - 主應用程式模組
- * 版本: 1.0.0
+ * 版本: 1.0.1
  * 模組: 主應用程式模組
  * 狀態: 獨立運行
  * 功能: OCR處理、故事生成、聊天機器人整合
+ *
+ * 增修項目:
+ * v1.0.1 (2025/09/08)
+ * - 調整聊天機器人記憶容量限制為10條對話記錄
+ * - 優化記憶管理機制，提升系統效能
  */
 
 // 匯入必要的模組
@@ -328,7 +333,7 @@ class PresbytopiaAssistant {
     initializeMemory() {
         this.memory = {
             storageKey: 'conversation-memory',
-            maxEntries: 50, // 最多儲存50條對話
+            maxEntries: 10, // 最多儲存10條對話
             conversations: []
         };
 

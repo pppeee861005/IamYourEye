@@ -1,9 +1,129 @@
-/* 老花眼救星 - 移動端無障礙樣式 */
+Y/* 老花眼救星 - 移動端無障礙樣式 */
 /* CSS Reset and Base */
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+}
+
+/* 語言切換器樣式 */
+.language-switcher {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    display: flex;
+    gap: 8px;
+    background-color: var(--secondary-bg);
+    border-radius: 25px;
+    padding: 8px;
+    border: 2px solid var(--border-color);
+    box-shadow: var(--shadow);
+}
+
+.lang-btn {
+    background-color: transparent;
+    color: var(--secondary-text);
+    border: none;
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-height: var(--touch-target-min);
+    min-width: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    touch-action: manipulation;
+}
+
+.lang-btn:hover,
+.lang-btn:focus {
+    background-color: var(--accent-color);
+    color: white;
+    transform: translateY(-1px);
+    outline: 3px solid rgba(0, 102, 204, 0.3);
+    outline-offset: 2px;
+}
+
+.lang-btn.active {
+    background-color: var(--accent-color);
+    color: white;
+    box-shadow: 0 2px 4px rgba(0, 102, 204, 0.3);
+}
+
+.lang-btn:active {
+    transform: translateY(0);
+}
+
+/* 平板電腦上的語言切換器調整 */
+@media screen and (min-width: 768px) {
+    .language-switcher {
+        top: 30px;
+        right: 30px;
+        padding: 10px;
+    }
+
+    .lang-btn {
+        padding: 10px 20px;
+        font-size: 1.1rem;
+        min-width: 56px;
+    }
+}
+
+/* 大型平板/桌面上的語言切換器調整 */
+@media screen and (min-width: 1024px) {
+    .language-switcher {
+        top: 40px;
+        right: 40px;
+        padding: 12px;
+    }
+
+    .lang-btn {
+        padding: 12px 24px;
+        font-size: 1.2rem;
+        min-width: 64px;
+    }
+}
+
+/* 高對比度模式下的語言切換器 */
+@media (prefers-contrast: high) {
+    .language-switcher {
+        border: 3px solid #000000;
+    }
+
+    .lang-btn {
+        border: 2px solid #000000;
+        font-weight: 700;
+    }
+
+    .lang-btn.active {
+        background-color: #0000ff;
+        border-color: #0000ff;
+    }
+}
+
+/* 深色模式下的語言切換器 */
+@media (prefers-color-scheme: dark) {
+    .language-switcher {
+        background-color: var(--secondary-bg);
+        border-color: var(--border-color);
+    }
+
+    .lang-btn {
+        color: var(--secondary-text);
+    }
+
+    .lang-btn:hover,
+    .lang-btn:focus {
+        background-color: var(--accent-color);
+    }
+
+    .lang-btn.active {
+        background-color: var(--accent-color);
+    }
 }
 
 /* 根字體和顏色設定 - 高對比度 */
