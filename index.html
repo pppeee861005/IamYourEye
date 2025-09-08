@@ -7,11 +7,15 @@
     <link rel="stylesheet" href="css/styles.css">
     <!-- Tesseract.js for OCR -->
     <script src="https://unpkg.com/tesseract.js@5.0.4/dist/tesseract.min.js"></script>
-    <script src="./js/env-loader.js"></script> <!-- 引入 env-loader.js -->
+
+    <!-- 優先載入 Gemini 聊天相關腳本 -->
     <script src="./js/config.js"></script> <!-- config.js 不再是模組 -->
+    <script src="./js/env-loader.js"></script> <!-- 引入 env-loader.js -->
+    <script src="./js/gemini-chat.js"></script> <!-- Gemini AI 聊天功能 -->
+
+    <!-- 延遲載入模組腳本，避免時機衝突 -->
     <script type="module" src="js/main.js"></script>
     <script type="module" src="./js/story-generator.js"></script>
-    <script type="module" src="./js/chatbot.js"></script>
 </head>
 <body>
     <!-- 主容器 - 語義化HTML結構 -->
@@ -30,6 +34,14 @@
             </div>
         </header>
 
+        <!-- 角色指示器 -->
+        <div id="role-indicator" class="role-indicator" style="display: none;">
+            <div class="role-indicator-content">
+                <span class="role-icon">😊</span>
+                <span class="role-name">小安正在協助您</span>
+            </div>
+        </div>
+
 
         <!-- 核心功能入口區域 -->
         <section class="main-interactions">
@@ -43,20 +55,22 @@
                     <p class="interaction-desc" id="upload-desc">上傳圖片，小安會幫您識別文字內容</p>
                 </div>
 
-                <!-- 直接對話功能 -->
+
+
+                <!-- 故事生成器功能 -->
                 <div class="interaction-item">
-                    <label for="text-input" class="input-label">💬 直接對話</label>
-                    <textarea 
-                        id="text-input" 
-                        class="text-input" 
-                        placeholder="輸入您想說的話，或者問問題..."
+                    <label for="story-text-input" class="input-label">📖 故事生成器</label>
+                    <textarea
+                        id="story-text-input"
+                        class="text-input"
+                        placeholder="輸入文字內容，小安會為您生成溫馨故事..."
                         rows="3"
-                        maxlength="500"
-                        aria-describedby="text-desc">
+                        maxlength="1000"
+                        aria-describedby="story-desc">
                     </textarea>
-                    <p class="interaction-desc" id="text-desc">直接與小安對話，詢問任何問題</p>
-                    <button class="primary-btn" id="text-submit-btn" aria-label="發送文字訊息">
-                        💬 開始對話
+                    <p class="interaction-desc" id="story-desc">讓小安將複雜文字轉化為溫馨易懂的故事</p>
+                    <button class="primary-btn" id="generate-story-btn" aria-label="生成故事">
+                        📖 生成故事
                     </button>
                 </div>
             </div>
@@ -74,27 +88,33 @@
                     <button id="copy-result-btn" class="action-btn" aria-label="複製識別結果">
                         📋 複製
                     </button>
-                    <button id="send-to-chat-btn" class="action-btn" aria-label="發送到對話">
+                </div>
+            </div>
+        </section>
+
+        <!-- 故事結果顯示區域 -->
+        <section id="story-result-area" class="story-result-area" style="display: none;" aria-live="polite">
+            <div class="story-result-header">
+                <h3>📖 生成的故事</h3>
+                <button id="story-result-close" class="close-btn" aria-label="關閉故事結果">✕</button>
+            </div>
+            <div class="story-result-content">
+                <div id="story-content" class="story-content"></div>
+                <div class="story-result-actions">
+                    <button id="read-story-aloud-btn" class="action-btn" aria-label="朗讀故事">
+                        🔊 朗讀
+                    </button>
+                    <button id="copy-story-btn" class="action-btn" aria-label="複製故事">
+                        📋 複製
+                    </button>
+                    <button id="send-story-to-chat-btn" class="action-btn" aria-label="發送到對話">
                         💬 發送到對話
                     </button>
                 </div>
             </div>
         </section>
 
-        <!-- 回應區域 -->
-        <section id="response-area" class="response-area" style="display: none;" aria-live="polite">
-            <div class="response-content">
-                <div id="response-text" class="response-text"></div>
-                <div class="response-actions">
-                    <button id="read-aloud-btn" class="action-btn" aria-label="大聲朗讀回應內容">
-                        🔊 朗讀
-                    </button>
-                    <button id="continue-btn" class="action-btn" aria-label="請小安繼續說明">
-                        ➡️ 繼續
-                    </button>
-                </div>
-            </div>
-        </section>
+
 
         <!-- 載入指示器 -->
         <div id="loading-indicator" class="loading-indicator" style="display: none;" aria-live="polite">
@@ -102,34 +122,126 @@
             <div class="loading-text">小安正在處理中...</div>
         </div>
 
-        <!-- 聊天機器人界面 -->
+        <!-- Gemini AI 聊天機器人界面 -->
         <section class="chatbot-section">
-
-                <!-- 聊天訊息區域 -->
-                <div class="chat-messages" id="messages">
-                <div class="message bot-message">
-                    <div class="message-bubble">
-                        您好！我是小安，很高興見到您！有什麼可以幫助您的嗎？
-                    </div>
+            <div class="chat-container">
+                <div class="chat-header">
+                    <h1>Gemini AI 聊天</h1>
                 </div>
+                <div class="chat-messages" id="chat-messages">
+                    <!-- 聊天訊息將在此處顯示 -->
                 </div>
-
-                <!-- 聊天輸入區域 -->
-                <div class="chat-input-area">
-                    <div class="typing" id="typing" style="display: none;">小安正在思考中...</div>
-                    <div class="input-container">
-                        <input type="text" id="chat-input" placeholder="和小安說些什麼..." maxlength="200">
-                        <button id="send-btn">發送</button>
-                    </div>
+                <div class="chat-input">
+                    <input type="text" id="user-input" placeholder="輸入您的訊息...">
+                    <button id="send-button">發送</button>
                 </div>
-
+            </div>
         </section>
 
     </main>
 
+    <!-- 頁面底部版本資訊 -->
+    <footer class="app-footer" style="text-align: center; padding: 20px; background-color: #f8f9fa; border-top: 1px solid #dee2e6; margin-top: 40px;">
+        <div class="version-info" style="font-size: 0.85em; color: #6c757d;">
+            <div style="margin-bottom: 8px;">
+                <strong id="app-name">老花眼救星</strong> v<span id="app-version">1.2.1</span>
+                <span style="font-size: 0.8em; color: #9ca3af;">(建置: <span id="build-date">2025-01-08</span>)</span>
+            </div>
+            <div style="font-size: 0.8em; margin-bottom: 8px;">
+                模組版本:
+                <span id="module-versions">
+                    Gemini Chat v<span id="gemini-version">1.2.1</span> |
+                    OCR 處理器 v<span id="ocr-version">1.2.1</span> |
+                    主應用 v<span id="main-version">1.2.1</span> |
+                    日誌系統 v<span id="logger-version">1.2.1</span>
+                </span>
+            </div>
+            <div style="font-size: 0.75em; margin-bottom: 8px;">
+                功能模組: <span id="features-list">載入中...</span>
+            </div>
+            <div style="font-size: 0.75em; color: #9ca3af;">
+                © 2025 老花眼救星 - 專為長者設計的智慧助手
+                <button id="show-diagnostics" style="margin-left: 10px; padding: 2px 8px; font-size: 0.7em; background: #e9ecef; border: 1px solid #dee2e6; border-radius: 3px; cursor: pointer;" title="顯示系統診斷資訊">診斷</button>
+            </div>
+        </div>
+    </footer>
+
     <!-- JavaScript -->
     <script type="module">
         // 所有模組已自動載入 .env 配置並初始化
+    </script>
+
+    <!-- 版本資訊更新腳本 -->
+    <script>
+        // 更新版本顯示
+        function updateVersionDisplay() {
+            if (window.APP_CONFIG) {
+                // 更新基本資訊
+                document.getElementById('app-name').textContent = window.APP_CONFIG.APP_NAME || '老花眼救星';
+                document.getElementById('app-version').textContent = window.APP_CONFIG.APP_VERSION || '1.0.0';
+                document.getElementById('build-date').textContent = window.APP_CONFIG.BUILD_DATE || '未知';
+
+                // 更新模組版本
+                const versions = window.APP_CONFIG.MODULE_VERSIONS || {};
+                document.getElementById('gemini-version').textContent = versions.gemini_chat || '1.0.0';
+                document.getElementById('ocr-version').textContent = versions.ocr_processor || '1.0.0';
+                document.getElementById('main-version').textContent = versions.main_app || '1.0.0';
+                document.getElementById('logger-version').textContent = versions.logger || '1.0.0';
+
+                // 更新功能列表
+                const features = window.APP_CONFIG.FEATURES || [];
+                document.getElementById('features-list').textContent = features.join('、') || '載入中...';
+
+                // 設定診斷按鈕
+                setupDiagnosticsButton();
+            }
+        }
+
+        // 設定診斷按鈕功能
+        function setupDiagnosticsButton() {
+            const diagnosticsBtn = document.getElementById('show-diagnostics');
+            if (diagnosticsBtn) {
+                diagnosticsBtn.addEventListener('click', function() {
+                    showDiagnostics();
+                });
+            }
+        }
+
+        // 顯示系統診斷資訊
+        function showDiagnostics() {
+            if (window.logger && window.logger.diagnose) {
+                const diagnosis = window.logger.diagnose();
+
+                // 顯示詳細診斷資訊
+                console.log('=== 系統診斷報告 ===');
+                console.log('版本資訊:', window.APP_CONFIG.getFullVersionInfo());
+                console.log('功能狀態:', window.APP_CONFIG.FEATURES_ENABLED);
+                console.log('效能設定:', window.APP_CONFIG.PERFORMANCE);
+
+                // 顯示日誌統計
+                if (window.logger.showLogSummary) {
+                    window.logger.showLogSummary();
+                }
+
+                alert(`系統診斷完成！\n\n版本: ${window.APP_CONFIG.APP_VERSION}\n建置日期: ${window.APP_CONFIG.BUILD_DATE}\n\n詳細資訊請查看瀏覽器控制台 (F12)`);
+            } else {
+                alert('日誌系統尚未載入，請稍後再試');
+            }
+        }
+
+        // 頁面載入完成後更新版本資訊
+        document.addEventListener('DOMContentLoaded', function() {
+            // 延遲執行以確保配置已載入
+            setTimeout(updateVersionDisplay, 100);
+        });
+
+        // 如果配置後載入，也要更新版本
+        window.addEventListener('load', function() {
+            setTimeout(updateVersionDisplay, 500);
+        });
+
+        // 監聽配置載入事件
+        window.addEventListener('APP_CONFIG_LOADED', updateVersionDisplay);
     </script>
 </body>
 </html>

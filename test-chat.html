@@ -29,6 +29,7 @@
         <div id="messages"></div>
     </div>
 
+    <script src="js/config.js"></script>
     <script src="js/env-loader.js"></script>
     <script src="js/chatbot.js"></script>
 
@@ -73,10 +74,9 @@
                     throw new Error('環境變數載入器未載入');
                 }
 
-                await window.envLoader.load();
-
-                const apiKey = window.envLoader.get('GEMINI_API_KEY');
-                const model = window.envLoader.get('GEMINI_MODEL');
+                // 不再依賴 envLoader 載入，直接從 APP_CONFIG 獲取
+                const apiKey = window.APP_CONFIG.GEMINI_API_KEY;
+                const model = window.APP_CONFIG.GEMINI_MODEL;
 
                 if (!apiKey) {
                     throw new Error('GEMINI_API_KEY 未設定');

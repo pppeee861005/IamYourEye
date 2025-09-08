@@ -53,3 +53,8 @@ Thumbs.db
 # Test files (optional - uncomment if you want to exclude test files)
 # *-test.html
 # test-*.html
+
+# Markdown files (exclude from version control)
+*.md
+docs/**/*.md
+README*.md

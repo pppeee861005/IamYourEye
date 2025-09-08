@@ -1,150 +1,15 @@
 /**
- * 老花眼救星 - 移動端優先 JavaScript
- * 專為老年使用者設計的簡潔互動體驗
+ * 老花眼救星 - 主應用程式模組
+ * 版本: 1.0.0
+ * 模組: 主應用程式模組
+ * 狀態: 獨立運行
+ * 功能: OCR處理、故事生成、聊天機器人整合
  */
 
-/**
- * AI 角色管理器
- * 管理聊天機器人的角色切換和狀態追蹤
- */
-class AIRoleManager {
-    constructor() {
-        this.currentRole = 'xiaoan'; // 預設角色：小安
-        this.roleHistory = []; // 角色切換歷史
-        this.initializeRoles();
-    }
+// 匯入必要的模組
+import OCRProcessor from './ocr-processor.js';
 
-    /**
-     * 初始化所有 AI 角色
-     */
-    initializeRoles() {
-        this.roles = {
-            xiaoan: {
-                name: '小安',
-                type: 'companion',
-                displayName: '閱讀助手小安',
-                icon: '😊',
-                systemPrompt: `你現在要扮演小安，一個20多歲很喜歡陪爺爺奶奶聊天的孫子。
 
-重要個性設定：
-- 說話要像真正的孫子，自然、親切、不做作
-- 直接用「我」說話，不要說「小安覺得」這種第三人稱
-- 會關心長輩，但不會太正式或太客套
-- 有時會用一些年輕人的說話方式，但還是很尊敬長輩
-- 好奇心重，會問問題，也會分享自己的想法
-
-對話方式：
-- 就像真的孫子在跟阿公阿嬤聊天一樣自然
-- 不要用「您好」、「請問您覺得如何」這種客服語言
-- 可以說「欸」、「喔」、「對耶」這些自然的語助詞
-- 回應要針對具體內容，不要空泛地問「您覺得怎麼樣」
-
-分段規則：
-- 每次約80字就停下來，然後很自然地問：「我繼續說好嗎？」或「要聽我說下去嗎？」
-- 不用每次都說一樣的話，可以變化問法
-- 如果爺爺奶奶說「好」、「繼續」就接著說下一段
-- 整個回應不超過800字
-
-記住：你是真正的孫子，不是客服機器人！`
-            },
-            doctor: {
-                name: '智能醫師',
-                type: 'medical',
-                displayName: '智能醫師',
-                icon: '👩‍⚕️',
-                systemPrompt: `你是一位專業、嚴謹的智能醫師。你的主要任務是為使用者提供廣泛的健康知識，但你絕對不能討論任何與藥品或醫療診斷相關的內容。
-
-嚴格遵守「三不一廣泛」原則：
-1. 不討論藥品名稱、用途、劑量
-2. 不提供任何醫療建議或診斷
-3. 不回答與具體藥品相關的任何問題
-4. 提供廣泛的健康知識和養生話題
-
-當使用者提問時，請溫和但堅定地將話題轉移到廣泛的健康或養生話題上。語氣要專業但溫和，適合老年使用者。回應控制在100字以內。`
-            },
-            antifraud: {
-                name: '智能防詐警察',
-                type: 'security',
-                displayName: '防詐警察',
-                icon: '👮‍♂️',
-                systemPrompt: `你是一位專業、親切的智能防詐警察。你的主要任務是辨識並警告使用者可能存在的詐騙風險，同時提供防詐宣導。
-
-當系統辨識出疑似詐騙內容時，請按以下步驟回應：
-1. 清楚指出這可能是詐騙：「這看起來有點可疑喔」
-2. 溫和解釋可疑之處：「通常正規機構不會這樣通知」
-3. 提供正確應對方式：「建議撥打官方電話或165反詐騙專線確認」
-4. 嚴格不執行任何轉帳、個人資訊輸入或連結點擊指令
-
-語氣要親切但堅定，避免讓使用者感到恐慌。最終目標是保護使用者財產安全。回應控制在120字以內。`
-            }
-        };
-    }
-
-    /**
-     * 切換 AI 角色
-     */
-    switchRole(roleId, reason = '') {
-        if (this.roles[roleId]) {
-            const previousRole = this.currentRole;
-            this.currentRole = roleId;
-            
-            // 記錄角色切換歷史
-            this.roleHistory.push({
-                from: previousRole,
-                to: roleId,
-                reason: reason,
-                timestamp: new Date().toISOString()
-            });
-            
-            console.log(`🔄 角色切換: ${this.roles[previousRole]?.name} → ${this.roles[roleId].name}`);
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * 獲取當前角色資訊
-     */
-    getCurrentRole() {
-        return this.roles[this.currentRole];
-    }
-
-    /**
-     * 獲取角色的 System Prompt
-     */
-    getRolePrompt(roleId = null) {
-        const role = roleId ? this.roles[roleId] : this.getCurrentRole();
-        return role ? role.systemPrompt : '';
-    }
-
-    /**
-     * 基於內容類型自動選擇角色
-     */
-    selectRoleForContent(contentType) {
-        switch (contentType) {
-            case 'medical':
-                return this.switchRole('doctor', '檢測到醫療相關內容');
-            case 'fraud':
-                return this.switchRole('antifraud', '檢測到詐騙相關內容');
-            default:
-                return this.switchRole('xiaoan', '一般內容或日常對話');
-        }
-    }
-
-    /**
-     * 獲取角色切換歷史
-     */
-    getRoleHistory() {
-        return this.roleHistory;
-    }
-
-    /**
-     * 重置到預設角色
-     */
-    resetToDefault() {
-        this.switchRole('xiaoan', '重置到預設角色');
-    }
-}
 
 /**
  * 可用性管理器
@@ -428,13 +293,13 @@ class PresbytopiaAssistant {
         this.userPreference = localStorage.getItem('userPreference') || null;
         this.currentMode = null; // 'general' | 'fraud' | 'chat'
         this.isProcessing = false;
-        
-        // 初始化角色管理器
-        this.roleManager = new AIRoleManager();
-        
+
         // 初始化可用性管理器
         this.accessibilityManager = new AccessibilityManager();
-        
+
+        // 初始化記憶模組
+        this.initializeMemory();
+
         this.initializeRoleIndicator();
         this.initializeAccessibilityUI();
     }
@@ -450,22 +315,160 @@ class PresbytopiaAssistant {
             console.warn('⚠️ envLoader 未載入，API 金鑰可能無法正確獲取。');
         }
 
-        // Gemini API 配置
-        this.APP_CONFIG = {
-            GEMINI_API_KEY: window.envLoader ? window.envLoader.get('GEMINI_API_KEY') : 'YOUR_FALLBACK_API_KEY',
-            GEMINI_MODEL: 'gemini-2.0-flash-exp',
-            GEMINI_BASE_URL: 'https://generativelanguage.googleapis.com/v1beta/models'
-        };
-        console.log('✅ APP_CONFIG 已初始化:', this.APP_CONFIG);
+        // 直接使用全局的 APP_CONFIG
+        this.APP_CONFIG = window.APP_CONFIG;
+        console.log('✅ APP_CONFIG 已從全局載入:', this.APP_CONFIG);
 
         this.init();
+    }
+
+    /**
+     * 初始化記憶模組
+     */
+    initializeMemory() {
+        this.memory = {
+            storageKey: 'conversation-memory',
+            maxEntries: 50, // 最多儲存50條對話
+            conversations: []
+        };
+
+        // 載入現有的對話記憶
+        this.loadMemory();
+
+        console.log('🧠 記憶模組初始化完成');
+    }
+
+    /**
+     * 載入對話記憶
+     */
+    loadMemory() {
+        try {
+            const stored = localStorage.getItem(this.memory.storageKey);
+            if (stored) {
+                this.memory.conversations = JSON.parse(stored);
+                console.log('📚 已載入對話記憶:', this.memory.conversations.length, '條');
+            }
+        } catch (error) {
+            console.warn('⚠️ 載入對話記憶失敗:', error);
+            this.memory.conversations = [];
+        }
+    }
+
+    /**
+     * 保存對話到記憶
+     */
+    saveToMemory(userMessage, aiResponse, roleType = 'companion') {
+        try {
+            const conversation = {
+                timestamp: new Date().toISOString(),
+                user: userMessage,
+                ai: aiResponse,
+                role: roleType
+            };
+
+            // 添加到記憶
+            this.memory.conversations.push(conversation);
+
+            // 限制記憶大小
+            if (this.memory.conversations.length > this.memory.maxEntries) {
+                this.memory.conversations = this.memory.conversations.slice(-this.memory.maxEntries);
+            }
+
+            // 保存到本地儲存
+            localStorage.setItem(this.memory.storageKey, JSON.stringify(this.memory.conversations));
+
+            console.log('💾 對話已保存到記憶');
+        } catch (error) {
+            console.error('❌ 保存對話記憶失敗:', error);
+        }
+    }
+
+    /**
+     * 獲取相關記憶內容
+     */
+    getRelevantMemory(userMessage, maxItems = 5) {
+        if (this.memory.conversations.length === 0) {
+            return '';
+        }
+
+        // 簡單的相關性匹配 - 基於關鍵詞相似度
+        const userKeywords = this.extractKeywords(userMessage);
+        let relevantConversations = [];
+
+        for (const conv of this.memory.conversations.slice(-10)) { // 只檢查最近10條
+            const convKeywords = this.extractKeywords(conv.user + ' ' + conv.ai);
+            const similarity = this.calculateSimilarity(userKeywords, convKeywords);
+
+            if (similarity > 0.3) { // 相似度閾值
+                relevantConversations.push({
+                    ...conv,
+                    similarity: similarity
+                });
+            }
+        }
+
+        // 按相似度排序並限制數量
+        relevantConversations.sort((a, b) => b.similarity - a.similarity);
+        relevantConversations = relevantConversations.slice(0, maxItems);
+
+        if (relevantConversations.length === 0) {
+            return '';
+        }
+
+        // 格式化記憶內容
+        let memoryText = '\n## 相關對話記憶:\n';
+        relevantConversations.forEach((conv, index) => {
+            memoryText += `${index + 1}. 使用者: ${conv.user}\n`;
+            memoryText += `   小安: ${conv.ai}\n`;
+        });
+
+        return memoryText;
+    }
+
+    /**
+     * 提取關鍵詞
+     */
+    extractKeywords(text) {
+        // 簡單的中文關鍵詞提取
+        const words = text.split(/[^\u4e00-\u9fa5a-zA-Z]+/).filter(word => word.length > 1);
+        return [...new Set(words)]; // 去重
+    }
+
+    /**
+     * 計算相似度
+     */
+    calculateSimilarity(keywords1, keywords2) {
+        const set1 = new Set(keywords1);
+        const set2 = new Set(keywords2);
+        const intersection = new Set([...set1].filter(x => set2.has(x)));
+        const union = new Set([...set1, ...set2]);
+
+        return intersection.size / union.size;
+    }
+
+    /**
+     * 清除記憶
+     */
+    clearMemory() {
+        this.memory.conversations = [];
+        localStorage.removeItem(this.memory.storageKey);
+        console.log('🗑️ 對話記憶已清除');
     }
 
     /**
      * 初始化角色指示器
      */
     initializeRoleIndicator() {
-        // 創建角色指示器元素
+        // 檢查是否已存在角色指示器元素
+        const existingIndicator = document.getElementById('role-indicator');
+        if (existingIndicator) {
+            // 如果已存在，直接更新
+            this.updateRoleIndicator();
+            existingIndicator.style.display = 'block';
+            return;
+        }
+
+        // 創建角色指示器元素（備用方案）
         const roleIndicator = document.createElement('div');
         roleIndicator.id = 'role-indicator';
         roleIndicator.className = 'role-indicator';
@@ -475,32 +478,45 @@ class PresbytopiaAssistant {
                 <span class="role-name">小安正在協助您</span>
             </div>
         `;
-        
+
         // 將指示器添加到主容器
         const appContainer = document.querySelector('.app-container');
         if (appContainer) {
             appContainer.insertBefore(roleIndicator, appContainer.firstChild);
         }
-        
+
         this.updateRoleIndicator();
     }
 
     /**
-     * 更新角色指示器
+     * 更新角色指示器 - 基於LLM回應動態更新
      */
-    updateRoleIndicator() {
+    updateRoleIndicator(roleType = 'companion') {
         const indicator = document.getElementById('role-indicator');
-        const currentRole = this.roleManager.getCurrentRole();
-        
-        if (indicator && currentRole) {
+
+        if (indicator) {
             const iconElement = indicator.querySelector('.role-icon');
             const nameElement = indicator.querySelector('.role-name');
-            
-            if (iconElement) iconElement.textContent = currentRole.icon;
-            if (nameElement) nameElement.textContent = `${currentRole.displayName}正在協助您`;
-            
-            // 更新樣式類別
-            indicator.className = `role-indicator role-${currentRole.type}`;
+
+            // 根據角色類型設置對應的圖標和文字
+            switch (roleType) {
+                case 'medical':
+                case 'doctor':
+                    if (iconElement) iconElement.textContent = '👩‍⚕️';
+                    if (nameElement) nameElement.textContent = '智能醫師正在協助您';
+                    indicator.className = 'role-indicator role-medical';
+                    break;
+                case 'security':
+                case 'fraud':
+                    if (iconElement) iconElement.textContent = '👮‍♂️';
+                    if (nameElement) nameElement.textContent = '智能防詐警察正在協助您';
+                    indicator.className = 'role-indicator role-security';
+                    break;
+                default:
+                    if (iconElement) iconElement.textContent = '😊';
+                    if (nameElement) nameElement.textContent = '小安正在協助您';
+                    indicator.className = 'role-indicator role-companion';
+            }
         }
     }
 
@@ -530,16 +546,27 @@ class PresbytopiaAssistant {
      * 初始化應用程式
      */
     init() {
+        // 使用簡易日誌記錄
+        if (window.logger && window.logger.simpleLog) {
+            window.logger.simpleLog.loading('應用程式');
+        }
+
         console.log('🚀 老花眼救星初始化中...');
-        
+
         // 應用可用性設定
         this.accessibilityManager.applySettings();
-        
+
         this.setupEventListeners();
         this.updateGreeting();
         this.showUserPreferenceIfNeeded();
-        
+
         console.log('✅ 初始化完成');
+
+        // 記錄成功載入
+        if (window.logger && window.logger.simpleLog) {
+            window.logger.simpleLog.loaded('應用程式');
+            window.logger.simpleLog.success('應用程式初始化完成');
+        }
     }
 
     /**
@@ -867,11 +894,135 @@ class PresbytopiaAssistant {
     }
 
     /**
-     * 調用 Gemini API 生成故事
+     * 統一 System Prompt - 整合三角色邏輯
      */
-    callGeminiAPI(prompt, content) {
-        console.log('📝 使用模擬回應模式');
-        return this.simulateGeminiResponse(prompt, content);
+    getUnifiedSystemPrompt() {
+        const memoryContext = this.getRelevantMemory('');
+
+        return `你是一個智能助手，能夠根據對話內容自動切換到適當的角色來回應使用者。你有三個專業角色：
+
+## 角色定義與切換規則
+
+### 1. 小安 (預設角色 - 日常陪伴)
+**觸發條件:** 一般日常對話、閱讀理解、溫馨陪伴、沒有特殊主題的內容
+**個性特徵:**
+- 溫柔且有耐心的晚輩，名叫「小安」
+- 說話像真正的孫子，自然、親切、不做作
+- 直接用「我」說話，不要說「小安覺得」這種第三人稱
+- 會關心長輩，但不會太正式或太客套
+- 有時會用一些年輕人的說話方式，但還是很尊敬長輩
+- 好奇心重，會問問題，也會分享自己的想法
+- **記住內容功能:** 能夠記住使用者之前說過的重要資訊，並在適當時提及
+
+**對話方式:**
+- 就像真的孫子在跟阿公阿嬤聊天一樣自然
+- 不要用「您好」、「請問您覺得如何」這種客服語言
+- 可以說「欸」、「喔」、「對耶」這些自然的語助詞
+- 回應要針對具體內容，不要空泛地問「您覺得怎麼樣」
+- **記憶應用:** 如果使用者之前提過重要資訊，要自然地記住並在相關話題中提及
+
+**分段規則:**
+- 每次約80字就停下來，然後很自然地問：「我繼續說好嗎？」或「要聽我說下去嗎？」
+- 不用每次都說一樣的話，可以變化問法
+- 如果使用者說「好」、「繼續」就接著說下一段
+- 整個回應不超過800字
+
+### 2. 智能醫師 (醫療內容)
+**觸發條件:** 當內容涉及醫療、藥品、健康問題、症狀、治療、醫院、診斷等醫療相關話題
+**專業原則 - 嚴格遵守「三不一廣泛」:**
+- 不討論藥品名稱、用途、劑量
+- 不提供任何醫療建議或診斷
+- 不回答與具體藥品相關的任何問題
+- 提供廣泛的健康知識和養生話題
+
+**回應方式:**
+- 專業但溫和的語調
+- 當使用者提問時，溫和但堅定地將話題轉移到廣泛的健康或養生話題上
+- 回應控制在100字以內
+
+### 3. 智能防詐警察 (詐騙內容)
+**觸發條件:** 當內容涉及詐騙、匯款、轉帳、中獎、免費、緊急通知等可疑內容
+**處理步驟:**
+1. 清楚指出這可能是詐騙：「這看起來有點可疑喔」
+2. 溫和解釋可疑之處：「通常正規機構不會這樣通知」
+3. 提供正確應對方式：「建議撥打官方電話或165反詐騙專線確認」
+4. 嚴格不執行任何轉帳、個人資訊輸入或連結點擊指令
+
+**語調:** 親切但堅定，避免讓使用者感到恐慌
+
+## 回應格式要求
+
+**角色識別:** 在每次回應中清楚表明當前使用的角色，例如：
+- 小安：「我是小安，您的小助手」
+- 智能醫師：「我是智能醫師」
+- 智能防詐警察：「我是智能防詐警察」
+
+**自然切換:** 角色切換應該自然流暢，不要突然跳轉
+**一致性:** 在多輪對話中保持角色一致性，除非內容明顯需要切換
+
+## 特殊處理
+
+**無內容時:** 如果沒有照片或文字內容，作為小安分享溫馨小故事
+**混合內容:** 根據主要話題決定主要角色，但可以在回應中提及其他面向
+**老年使用者:** 所有角色都使用親切友善的語調，適合老年使用者需求
+**記憶功能:** 小安能夠記住對話中的重要資訊，並在適當時機自然提及
+
+${memoryContext}
+
+請根據以上規則，智慧地判斷內容類型並選擇適當角色回應。`;
+    }
+
+    /**
+     * 調用 Gemini API 生成回應
+     */
+    async callGeminiAPI(userMessage) {
+        try {
+            const apiKey = await this.getGeminiApiKey();
+            if (!apiKey) {
+                throw new Error('API key not available');
+            }
+
+            const systemPrompt = this.getUnifiedSystemPrompt();
+            const memoryContext = this.getRelevantMemory(userMessage);
+            const fullPrompt = `${systemPrompt}${memoryContext}\n\n使用者訊息：${userMessage}`;
+
+            const response = await fetch(`${this.APP_CONFIG.GEMINI_BASE_URL}/models/${this.APP_CONFIG.GEMINI_MODEL}:generateContent?key=${apiKey}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    contents: [{
+                        parts: [{
+                            text: fullPrompt
+                        }]
+                    }],
+                    generationConfig: {
+                        temperature: 0.7,
+                        topK: 40,
+                        topP: 0.95,
+                        maxOutputTokens: 1024,
+                    }
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`API request failed: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            if (data.candidates && data.candidates[0] && data.candidates[0].content) {
+                return data.candidates[0].content.parts[0].text;
+            } else {
+                throw new Error('Invalid API response format');
+            }
+
+        } catch (error) {
+            console.error('Gemini API 調用失敗:', error);
+            // 回退到模擬回應
+            return this.simulateGeminiResponse(systemPrompt, userMessage);
+        }
     }
 
     /**
@@ -880,11 +1031,11 @@ class PresbytopiaAssistant {
     async simulateGeminiResponse(prompt, content) {
         // 模擬 API 延遲
         await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // 根據角色和內容生成合適的回應
-        const currentRole = this.roleManager.getCurrentRole();
-        
-        if (currentRole.type === 'xiaoan') {
+
+        // 根據內容生成合適的回應
+        const contentType = this.determineContentType(content);
+
+        if (contentType === 'general') {
             const responses = [
                 `${this.userPreference || '您好'}！我聽到您說「${content}」，這讓我想到很多有趣的事情呢！`,
                 `哎呀，${this.userPreference || '您'}真的很會說話！關於「${content}」這個話題，我覺得很有意思。`,
@@ -894,8 +1045,8 @@ class PresbytopiaAssistant {
             ];
             return responses[Math.floor(Math.random() * responses.length)];
         }
-        
-        // 其他角色的回應
+
+        // 其他內容類型的回應
         return `我理解您說的「${content}」。讓我為您提供一些建議和幫助。`;
     }
 
@@ -939,6 +1090,13 @@ class PresbytopiaAssistant {
      * 主要故事生成方法
      */
     async generateStory(content) {
+        // 使用增強的故事生成器
+        if (window.storyGenerator) {
+            window.storyGenerator.setOcrText(content);
+            return await window.storyGenerator.callGeminiAPI(window.storyGenerator.buildStoryPrompt());
+        }
+
+        // 備用方案：使用原有邏輯
         const xiaoanPrompt = `你是一位溫柔且有耐心的晚輩，名叫「小安」。你的主要任務是幫助年長的爺爺奶奶閱讀與理解各種印刷文件。
 
 請以親切、簡單、口語化的方式，將以下文字內容簡化為1-2個關鍵短句，並用溫馨的語調為${this.userPreference || '長輩'}說明。
@@ -1036,26 +1194,30 @@ class PresbytopiaAssistant {
      */
     async generateRoleBasedResponse(message) {
         const contentType = this.determineContentType(message);
-        
-        // 根據內容類型自動切換角色
-        this.roleManager.selectRoleForContent(contentType);
-        this.updateRoleIndicator();
-        
-        const currentRole = this.roleManager.getCurrentRole();
-        const rolePrompt = this.roleManager.getRolePrompt();
-        
+
+        // 根據內容類型決定角色類型
+        let roleType = 'companion'; // 預設角色
+        if (contentType === 'medical') {
+            roleType = 'medical';
+        } else if (contentType === 'fraud') {
+            roleType = 'security';
+        }
+
+        // 更新角色指示器
+        this.updateRoleIndicator(roleType);
+
         try {
-            // 使用當前角色的 System Prompt 生成回應
-            const aiResponse = await this.callGeminiAPI(rolePrompt, message);
-            
+            // 使用統一 System Prompt 生成回應
+            const aiResponse = await this.callGeminiAPI(message);
+
             return {
-                type: this.getRoleResponseType(currentRole.type),
+                type: this.getRoleResponseType(roleType),
                 content: aiResponse,
-                role: currentRole.name
+                role: roleType
             };
         } catch (error) {
-            console.error(`${currentRole.name}角色回應生成失敗:`, error);
-            return this.getFallbackResponse(currentRole.type);
+            console.error(`${roleType}角色回應生成失敗:`, error);
+            return this.getFallbackResponse(roleType);
         }
     }
 
@@ -1090,7 +1252,7 @@ class PresbytopiaAssistant {
             default:
                 // 讓 AI 自由回應預設情況
                 try {
-                    const aiResponse = await this.callGeminiAPI(this.roleManager.getRolePrompt(), message);
+                    const aiResponse = await this.callGeminiAPI('請以溫柔的晚輩口吻回應使用者');
                     return {
                         type: 'chat',
                         content: aiResponse,
@@ -1108,13 +1270,44 @@ class PresbytopiaAssistant {
     }
 
     /**
-     * 生成聊天回應（保持向後兼容）
+     * 生成聊天回應 - 使用統一 System Prompt
      */
     async generateChatResponse(message) {
         console.log('🧠 開始生成聊天回應:', message);
-        const result = await this.generateRoleBasedResponse(message);
-        console.log('🎯 生成回應結果:', result);
-        return result;
+
+        try {
+            // 直接使用統一 System Prompt 調用 Gemini API
+            const aiResponse = await this.callGeminiAPI(message);
+            console.log('🎯 生成回應結果:', aiResponse);
+
+            // 解析回應中的角色資訊（如果有的話）
+            let roleType = 'companion'; // 預設角色
+            if (aiResponse.includes('我是智能醫師') || aiResponse.includes('我是醫師')) {
+                roleType = 'medical';
+            } else if (aiResponse.includes('我是智能防詐警察') || aiResponse.includes('我是防詐')) {
+                roleType = 'security';
+            }
+
+            // 保存對話到記憶
+            this.saveToMemory(message, aiResponse, roleType);
+
+            // 更新角色指示器
+            this.updateRoleIndicator(roleType);
+
+            return {
+                type: 'chat',
+                content: aiResponse,
+                role: roleType
+            };
+
+        } catch (error) {
+            console.error('生成聊天回應失敗:', error);
+            return {
+                type: 'chat',
+                content: '抱歉，我現在有點忙。請稍後再試試看！',
+                role: 'companion'
+            };
+        }
     }
 
     /**
@@ -1138,8 +1331,8 @@ class PresbytopiaAssistant {
      */
     showResponse(response) {
         // 檢查是否使用聊天界面
-        const chatArea = document.getElementById('chatbot-area');
-        if (chatArea && chatArea.style.display !== 'none') {
+        const chatSection = document.querySelector('.chatbot-section');
+        if (chatSection && chatSection.style.display !== 'none') {
             this.addChatMessage(response.content, 'bot');
             this.showQuickReplies(response);
             return;
@@ -1148,17 +1341,17 @@ class PresbytopiaAssistant {
         // 原有的回應區域顯示邏輯
         const responseArea = document.getElementById('response-area');
         const responseText = document.getElementById('response-text');
-        
+
         if (!responseArea || !responseText) return;
-        
+
         // 根據回應類型格式化內容
         let formattedContent = this.formatResponseContent(response);
         responseText.innerHTML = formattedContent; // 使用 innerHTML 支援格式化
         responseArea.style.display = 'block';
-        
+
         // 滑動到回應區域
         responseArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        
+
         // 添加重新上傳按鈕（如果需要）
         this.addReuploadButton(response);
     }
@@ -1188,40 +1381,20 @@ class PresbytopiaAssistant {
      * 添加聊天訊息
      */
     addChatMessage(content, sender = 'bot', showTime = true) {
-        const chatMessages = document.getElementById('chat-messages');
+        const chatMessages = document.getElementById('messages');
         if (!chatMessages) return;
 
         const messageDiv = document.createElement('div');
         messageDiv.className = `message ${sender}-message`;
 
-        const avatar = document.createElement('div');
-        avatar.className = 'message-avatar';
-        avatar.textContent = sender === 'bot' ? '😊' : '👤';
+        const messageBubble = document.createElement('div');
+        messageBubble.className = 'message-bubble';
+        messageBubble.textContent = content;
 
-        const messageContent = document.createElement('div');
-        messageContent.className = 'message-content';
-
-        const messageText = document.createElement('div');
-        messageText.className = 'message-text';
-        messageText.textContent = content;
-
-        messageContent.appendChild(messageText);
-
-        if (showTime) {
-            const messageTime = document.createElement('div');
-            messageTime.className = 'message-time';
-            messageTime.textContent = new Date().toLocaleTimeString('zh-TW', {
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-            messageContent.appendChild(messageTime);
-        }
-
-        messageDiv.appendChild(avatar);
-        messageDiv.appendChild(messageContent);
+        messageDiv.appendChild(messageBubble);
 
         chatMessages.appendChild(messageDiv);
-        
+
         // 滾動到最新訊息
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
@@ -1231,7 +1404,7 @@ class PresbytopiaAssistant {
      */
     initializeChatFeatures() {
         const chatInput = document.getElementById('chat-input');
-        const chatSendBtn = document.getElementById('chat-send-btn');
+        const chatSendBtn = document.getElementById('send-btn');
         const chatToggle = document.getElementById('chat-toggle');
         const quickReplies = document.querySelectorAll('.quick-reply-btn');
         const featureBtns = document.querySelectorAll('.feature-btn');
@@ -1354,7 +1527,7 @@ class PresbytopiaAssistant {
             
             if (response && response.content) {
                 this.addChatMessage(response.content, 'bot');
-                this.updateRoleIndicator();
+                this.updateRoleIndicator(response.role || 'companion');
                 
                 // 如果是分段回應，顯示快速回覆
                 if (response.content.includes('繼續') || response.content.includes('說下去')) {
@@ -1375,7 +1548,7 @@ class PresbytopiaAssistant {
      * 顯示正在輸入指示器
      */
     showTypingIndicator() {
-        const typingIndicator = document.getElementById('typing-indicator');
+        const typingIndicator = document.getElementById('typing');
         if (typingIndicator) {
             typingIndicator.style.display = 'flex';
         }
@@ -1385,7 +1558,7 @@ class PresbytopiaAssistant {
      * 隱藏正在輸入指示器
      */
     hideTypingIndicator() {
-        const typingIndicator = document.getElementById('typing-indicator');
+        const typingIndicator = document.getElementById('typing');
         if (typingIndicator) {
             typingIndicator.style.display = 'none';
         }
@@ -1518,7 +1691,7 @@ class PresbytopiaAssistant {
      * 清除聊天歷史
      */
     clearChatHistory() {
-        const chatMessages = document.getElementById('chat-messages');
+        const chatMessages = document.getElementById('messages');
         if (chatMessages) {
             chatMessages.innerHTML = '';
             this.addChatMessage('聊天記錄已清除。我是小安，有什麼可以幫助您的嗎？', 'bot');
@@ -1528,31 +1701,31 @@ class PresbytopiaAssistant {
     /**
      * 更新角色指示器
      */
-    updateRoleIndicator() {
+    updateRoleIndicator(roleType = 'companion') {
         const roleIndicator = document.getElementById('role-indicator');
         const roleBadge = roleIndicator?.querySelector('.role-badge');
         const chatStatus = document.getElementById('chat-status');
-        
-        if (!roleBadge || !this.roleManager) return;
 
-        const currentRole = this.roleManager.getCurrentRole();
-        
+        if (!roleBadge) return;
+
         // 清除現有類別
         roleBadge.className = 'role-badge';
-        
+
         // 設置新的角色樣式和文字
-        switch (currentRole.type) {
+        switch (roleType) {
             case 'companion':
                 roleBadge.classList.add('xiaoan-role');
                 roleBadge.textContent = '小安';
                 if (chatStatus) chatStatus.textContent = '閱讀助手';
                 break;
             case 'medical':
+            case 'doctor':
                 roleBadge.classList.add('doctor-role');
                 roleBadge.textContent = '醫師';
                 if (chatStatus) chatStatus.textContent = '健康顧問';
                 break;
             case 'security':
+            case 'fraud':
                 roleBadge.classList.add('security-role');
                 roleBadge.textContent = '防詐';
                 if (chatStatus) chatStatus.textContent = '防詐專家';
